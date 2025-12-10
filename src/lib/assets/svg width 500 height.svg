@@ -1,0 +1,45 @@
+<svg width="500" height="500" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <g transform="translate(250,250)" filter="url(#shadow)">
+    
+    <path d="M 0 0 L 200 0 A 200 200 0 0 1 100 173.2 Z" fill="#FF5733" stroke="white" stroke-width="2"/>
+    <text x="120" y="60" font-family="Arial, sans-serif" font-size="20" fill="white" font-weight="bold" transform="rotate(30) translate(0,0)">
+      💻 Laptop
+    </text>
+
+    <path d="M 0 0 L 100 173.2 A 200 200 0 0 1 -100 173.2 Z" fill="#FFC300" stroke="white" stroke-width="2"/>
+    <text x="0" y="140" font-family="Arial, sans-serif" font-size="20" fill="white" font-weight="bold" text-anchor="middle" transform="rotate(90) translate(0,-10)">
+      📱 Phone
+    </text>
+
+    <path d="M 0 0 L -100 173.2 A 200 200 0 0 1 -200 0 Z" fill="#28B463" stroke="white" stroke-width="2"/>
+    <text x="-120" y="60" font-family="Arial, sans-serif" font-size="20" fill="white" font-weight="bold" text-anchor="end" transform="rotate(150) translate(0,0)">
+      📟 Tablet
+    </text>
+
+    <path d="M 0 0 L -200 0 A 200 200 0 0 1 -100 -173.2 Z" fill="#3498DB" stroke="white" stroke-width="2"/>
+    <text x="-120" y="-60" font-family="Arial, sans-serif" font-size="20" fill="white" font-weight="bold" text-anchor="end" transform="rotate(210) translate(0,10)">
+      📷 Camera
+    </text>
+
+    <path d="M 0 0 L -100 -173.2 A 200 200 0 0 1 100 -173.2 Z" fill="#9B59B6" stroke="white" stroke-width="2"/>
+    <text x="0" y="-130" font-family="Arial, sans-serif" font-size="20" fill="white" font-weight="bold" text-anchor="middle" transform="rotate(270) translate(0,0)">
+      ⌚ Watch
+    </text>
+
+    <path d="M 0 0 L 100 -173.2 A 200 200 0 0 1 200 0 Z" fill="#E67E22" stroke="white" stroke-width="2"/>
+    <text x="120" y="-60" font-family="Arial, sans-serif" font-size="20" fill="white" font-weight="bold" transform="rotate(330) translate(0,0)">
+      🎮 Console
+    </text>
+    
+    <circle cx="0" cy="0" r="20" fill="white" stroke="#333" stroke-width="2"/>
+  </g>
+
+  <polygon points="460,250 490,235 490,265" fill="#333" stroke="white" stroke-width="2"/>
+
+</svg>

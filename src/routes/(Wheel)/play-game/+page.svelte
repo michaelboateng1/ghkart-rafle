@@ -10,17 +10,12 @@
 	import tryAgainImage from '$lib/assets/images/error-alert-button-symbol.png';
 
 	import { onMount } from 'svelte';
-	import {page} from "$app/state";
 	import { drawWheel, updateSelectorColor, spin } from '$lib/wheel';
 
 	import WheelParticle from '$lib/wheelBackgroundAnimation';
 
 	import ConfettiPiece from '$lib/celebration';
-	import { email } from 'better-auth';
-	import { methods } from 'better-auth/svelte';
-	
-	// Make the wheel responsive
-	// const sm = 
+
 	
 	let canvas3;
 	let showConfetti = false;
@@ -32,116 +27,63 @@
 		initializeConfetti();
 	}
 
-	// function initializeConfetti(){
-	// 	canvas3.width = window.innerWidth;
-	// 	canvas3.height = window.innerHeight;
-	// 	const ctx3 = canvas3.getContext('2d');
-	
-	// 	const confetti = [];
-
-
-	// 	function hundleConfetti(){
-	// 		if(!canvas3) return;
-
-	// 		for(let i = 0; i <= 20; i++){
-	// 			const canvasWidth = canvas3.width;
-	// 			const canvasHeight = canvas3.height;
-	// 			const left = {x: 0, y: canvasHeight};
-	// 			const right = {x: canvasWidth, y: canvasHeight};
-	// 			const side =  Math.random() < 0.5 ? "left" : "right";
-	// 			const positionX = side === "left" ? left.x : right.x;
-	// 			const positionY = side === "left" ? left.y : right.y; 
-	// 			confetti.push(new ConfettiPiece(positionX, positionY, side, canvasWidth, canvasHeight));
-	// 		}			
-	// 	}
-
-	// 	function animateConfetti(){
-	// 		if(!canvas3 || !ctx3) return;
-			
-	// 		ctx3.clearRect(0, 0, canvas3.width, canvas3.height);
-
-	// 		hundleConfetti()
-
-	// 		for (let i = 0; i < confetti.length; i++) {
-	// 			confetti[i].update();
-	// 			confetti[i].draw(ctx3);
-
-	// 			if (confetti[i].isOffScreen()) {
-	// 				confetti.splice(i, 1);
-	// 			}
-	// 		}
-	// 		requestAnimationFrame(animateConfetti);
-	// 	}
-
-	// 	for(let i = 0; i <= 100; i++){
-	// 		hundleConfetti();
-	// 	}
-
-	// 	setInterval(() => animateConfetti(), 300);
-
-	// 	if(confetti.length === 0){
-	// 		confettiAnimationStarted = false;
-	// 		setTimeout(() => (showConfetti = false), 1000);
-	// 	}
-	// }
 
 	function initializeConfetti() {
-	canvas3.width = window.innerWidth;
-	canvas3.height = window.innerHeight;
-	const ctx3 = canvas3.getContext('2d');
+		canvas3.width = window.innerWidth;
+		canvas3.height = window.innerHeight;
+		const ctx3 = canvas3.getContext('2d');
 
-	const confetti = [];
-	let spawnTimer = 0;
-	let confettiAnimating = true;
+		const confetti = [];
+		let spawnTimer = 0;
+		let confettiAnimating = true;
 
-	// Spawn confetti for the first 1s only
-	function spawnConfetti() {
-		for (let i = 0; i < 30; i++) {
-			const w = canvas3.width;
-			const h = canvas3.height;
-			const side = Math.random() < 0.5 ? 'left' : 'right';
-			const posX = side === 'left' ? 0 : w;
-			const posY = h;
-			confetti.push(new ConfettiPiece(posX, posY, side, w, h));
-		}
-	}
-
-	// Animation loop (ONE loop only)
-	function animate() {
-		if (!canvas3 || !ctx3) return;
-
-		ctx3.clearRect(0, 0, canvas3.width, canvas3.height);
-
-		// Spawn for only 1 second
-		if (spawnTimer < 60) {
-			spawnConfetti();
-			spawnTimer++;
-		}
-
-		// Update & draw
-		for (let i = confetti.length - 1; i >= 0; i--) {
-			const piece = confetti[i];
-			piece.update();
-			piece.draw(ctx3);
-
-			if (piece.isOffScreen()) {
-				confetti.splice(i, 1);
+		function spawnConfetti() {
+			for (let i = 0; i < 40; i++) {
+				const w = canvas3.width;
+				const h = canvas3.height;
+				const side = Math.random() < 0.5 ? 'left' : 'right';
+				const posX = side === 'left' ? 0 : w;
+				const posY = h;
+				confetti.push(new ConfettiPiece(posX, posY, side, w, h));
 			}
 		}
 
-		// If empty, stop animation
-		if (confetti.length === 0 && spawnTimer >= 60) {
-			confettiAnimating = false;
-			showConfetti = false;
-			confettiAnimationStarted = false;
-			return;
+		// Animation loop (ONE loop only)
+		function animate() {
+			if (!canvas3 || !ctx3) return;
+
+			ctx3.clearRect(0, 0, canvas3.width, canvas3.height);
+
+			// Spawn for only 1 second
+			if (spawnTimer < 60) {
+				spawnConfetti();
+				spawnTimer++;
+			}
+
+			// Update & draw
+			for (let i = confetti.length - 1; i >= 0; i--) {
+				const piece = confetti[i];
+				piece.update();
+				piece.draw(ctx3);
+
+				if (piece.isOffScreen()) {
+					confetti.splice(i, 1);
+				}
+			}
+
+			// If empty, stop animation
+			if (confetti.length === 0 && spawnTimer >= 60) {
+				confettiAnimating = false;
+				showConfetti = false;
+				confettiAnimationStarted = false;
+				return;
+			}
+
+			if (confettiAnimating) requestAnimationFrame(animate);
 		}
 
-		if (confettiAnimating) requestAnimationFrame(animate);
+		animate();
 	}
-
-	animate();
-}
 
 	
 	const wheelParticles = [];
@@ -194,108 +136,59 @@
 		'Try Again'
 	];
 
-	function handleWindowResize() {
-		updateWheelSize();
-		
-		// Update background canvas
-		if (canvas2) {
-			canvas2.width = window.innerWidth;
-			canvas2.height = window.innerHeight;
-		}
-
-		// Update confetti canvas
-		if (canvas3) {
-			canvas3.width = window.innerWidth;
-			canvas3.height = window.innerHeight;
-		}
-	}
-
-	// Redraw wheel when size changes
-	$: if (canvas && wheelSize && !spinning && selector) {
-		const ctx = canvas.getContext('2d');
-		drawWheel(wheelSize, wheelSize, ctx, sections, rotation, colors, labels);
-		updateSelectorColor(selector, colors, rotation, sections);
-	}
-
-
 	function closeModal(e) {
 		if (e.target.id === 'modal') {
 			showModal = false;
 		}
 	}
 
-	let wheelSize = 400;
+	// let wheelSize = 400;
 
-	function updateWheelSize() {
-		const w = window.innerWidth;
+	// function updateWheelSize() {
+	// 	const w = window.innerWidth;
 
-		if (w < 450) {
-			wheelSize = 260;   // small phones
-		} else if (w < 768) {
-			wheelSize = 320;   // large phones / small tablets
-		} else if (w < 1024) {
-			wheelSize = 360;   // tablets
-		} else {
-			wheelSize = 400;   // desktop
-		}
-	}
+	// 	if (w < 450) {
+	// 		wheelSize = 260;   // small phones
+	// 	} else if (w < 768) {
+	// 		wheelSize = 320;   // large phones / small tablets
+	// 	} else if (w < 1024) {
+	// 		wheelSize = 360;   // tablets
+	// 	} else {
+	// 		wheelSize = 400;   // desktop
+	// 	}
+	// }
 
-
-	const dbChecks = async () => {
-		try{
-			const userId = page.state;
-
-			const options = {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json"
-				},
-				body: JSON.stringify({id: userId})
-			}
-
-			const resp = await fetch('/update-user', options);
-			const data = await resp.json();
-
-			return data;
-			console.log(data);
-		}catch(err){
-			console.log(err);
-		}
-
-	}
 
 	const navigateToCert = () => {
 		goto("/preview-certificate");
 	}
 
-	const wonAPrice = async (price) => {
-		try{
-			price = labels.includes(price) ? price : "no price";
-			const {customerId, userId} = page.state;
-			console.log("storing price: ", price);
+	// const wonAPrice = async (price) => {
+	// 	try{
+	// 		price = labels.includes(price) ? price : "no price";
+	// 		console.log("storing price: ", price);
 	
-			const options = {
-				method: "PSOT",
-				headers: {
-					"Content-Type": "application/json"
-				},
-				body: JSON.stringify({id: customerId, price})
-			}
+	// 		const options = {
+	// 			method: "PSOT",
+	// 			headers: {
+	// 				"Content-Type": "application/json"
+	// 			},
+	// 			body: JSON.stringify({id: customerId, price})
+	// 		}
 	
-			const req = await fetch("/won-a-price", options);
-			const data = await req.json();
+	// 		const req = await fetch("/won-a-price", options);
+	// 		const data = await req.json();
 
-			if(req.ok && data.success){
-				savedPrice = true;
-				return data;
-			}
+	// 		if(req.ok && data.success){
+	// 			savedPrice = true;
+	// 			return data;
+	// 		}
 
-		}catch(err){
-			console.log(err)
-		}
+	// 	}catch(err){
+	// 		console.log(err)
+	// 	}
 
-	}
-
+	// }
 
 
 	onMount(() => {
@@ -334,14 +227,19 @@
 		animateBackground();
 
 		const ctx = canvas.getContext('2d');
+		const canvasWidth = canvas.width;
+		const canvasHeight = canvas.height;
+
 
 
 
 		console.log(ctx);
 
 		// Start Drawing
+		drawWheel(canvasWidth, canvasHeight, ctx, sections, rotation, colors, labels);
+		updateSelectorColor(selector, colors, rotation, sections);
+
 		spinBtn.onclick = () => {
-			if(dbChecks()){
 				spin({
 					rotation,
 					spinning,
@@ -350,23 +248,23 @@
 					sections,
 					colors,
 					labels,
-					canvasWidth: wheelSize,
-					canvasHeight: wheelSize,
+					canvasWidth: canvasWidth,
+					canvasHeight: canvasHeight,
 					ctx,
 					selector,
 					onUpdate: (updates) => {
-						if ('selectedSection' in updates && savedPrice) {
+						if ('selectedSection' in updates) {
 							console.log(updates.selectedSection);
 							selectedImage = productImages[updates.selectedSection];
 						}
 	
-						if("selectedSection" in updates && savedPrice){
+						if("selectedSection" in updates){
 							showCertificateBtn = labels[updates.selectedSection] === "Try Again" ? false : true;
 						}
 	
-						if("selectedSection" in updates && savedPrice){
+						if("selectedSection" in updates){
 							showConfetti = labels[updates.selectedSection] !== "Try Again" ? true : false;
-							wonAPrice(labels[updates.selectedSection]);
+							// wonAPrice(labels[updates.selectedSection]);
 						}
 	
 						if ('rotation' in updates) {
@@ -384,15 +282,9 @@
 						}
 					}
 				});
-			}
-
 			return;
 		};
 	});
-
-	const hundleSpins = async () => {
-
-	}
 </script>
 
 <main class="m-0 p-5 flex flex-col items-center justify-center min-h-screen">
@@ -527,3 +419,28 @@
         min-height: 30px;
     } */
 </style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

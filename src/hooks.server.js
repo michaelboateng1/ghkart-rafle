@@ -9,21 +9,15 @@ import { customers, user } from "$lib/server/db/schemas/schema";
 import { eq } from "drizzle-orm";
 
 async function checkCookies({event, resolve}){
-	console.log("Event: ",event);
-	console.log("Resolve: ", resolve);
-	const {cookies, url} = event;
+	try{
+		const sessionToken = event.cookies.get("better-auth.session_token");
 
-
-
-
-
-	// const token = cookies.get("token");	
-	// console.log("Token: ", token);
-	// console.log("Cookies: ", cookies.getAll());
-
-	if(url.pathname === "/verify-email" && )
-
-	return resolve(event);
+		console.log("Session Token: ", sessionToken);
+	
+		return resolve(event);
+	}catch(err) {
+		console.log("Middleware Error: ", err)
+	}
 }
 
 async function spinLimit({ event, resolve }) {

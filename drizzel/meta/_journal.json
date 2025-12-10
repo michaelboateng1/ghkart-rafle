@@ -5,15 +5,8 @@
     {
       "idx": 0,
       "version": "6",
-      "when": 1765070386623,
-      "tag": "0000_illegal_tombstone",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1765298086279,
-      "tag": "0001_lethal_puck",
+      "when": 1765390099208,
+      "tag": "0000_happy_lester",
       "breakpoints": true
     }
   ]

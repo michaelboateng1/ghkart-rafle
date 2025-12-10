@@ -4,4 +4,4 @@
 
 {@render children()}
 
-	{@render children()}
+

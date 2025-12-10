@@ -1,12 +1,18 @@
 import { relations, sql } from 'drizzle-orm';
 import { sqliteTable, text, integer, index } from 'drizzle-orm/sqlite-core';
 
-export const user = sqliteTable('user', {
+export const customers = sqliteTable('customers', {
 	id: text('id').primaryKey(),
 	name: text('name').notNull(),
 	email: text('email').notNull().unique(),
 	emailVerified: integer('email_verified', { mode: 'boolean' }).default(false).notNull(),
-	image: text('image'),
+	phoneNumber: text('phone_number').notNull().unique(),
+	address: text('address').notNull(),
+	numberOfSpins: integer('number_of_spins').notNull().default(0),
+	winPrice: integer('win_price', {mode: "boolean"}).notNull().default(false),
+	priceName: text('price_name').notNull().default("no price"),
+	receivedPrice: integer('received_price', {mode: "boolean"}).notNull().default(false),
+	certificateGenerated: integer('certificate_generated', {mode: "boolean"}).notNull().default(false),
 	createdAt: integer('created_at', { mode: 'timestamp_ms' })
 		.default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
 		.notNull(),
@@ -30,42 +36,13 @@ export const session = sqliteTable(
 			.notNull(),
 		ipAddress: text('ip_address'),
 		userAgent: text('user_agent'),
-		userId: text('user_id')
+		customerId: text('customer_id')
 			.notNull()
-			.references(() => user.id, { onDelete: 'cascade' })
+			.references(() => customers.id, { onDelete: 'cascade' }),
 	},
-	(table) => [index('session_userId_idx').on(table.userId)]
+	(table) => [index('session_customerId_idx').on(table.customerId)]
 );
 
-export const account = sqliteTable(
-	'account',
-	{
-		id: text('id').primaryKey(),
-		accountId: text('account_id').notNull(),
-		providerId: text('provider_id').notNull(),
-		userId: text('user_id')
-			.notNull()
-			.references(() => user.id, { onDelete: 'cascade' }),
-		accessToken: text('access_token'),
-		refreshToken: text('refresh_token'),
-		idToken: text('id_token'),
-		accessTokenExpiresAt: integer('access_token_expires_at', {
-			mode: 'timestamp_ms'
-		}),
-		refreshTokenExpiresAt: integer('refresh_token_expires_at', {
-			mode: 'timestamp_ms'
-		}),
-		scope: text('scope'),
-		password: text('password'),
-		createdAt: integer('created_at', { mode: 'timestamp_ms' })
-			.default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
-			.notNull(),
-		updatedAt: integer('updated_at', { mode: 'timestamp_ms' })
-			.$onUpdate(() => /* @__PURE__ */ new Date())
-			.notNull()
-	},
-	(table) => [index('account_userId_idx').on(table.userId)]
-);
 
 export const verification = sqliteTable(
 	'verification',
@@ -79,24 +56,23 @@ export const verification = sqliteTable(
 			.notNull(),
 		updatedAt: integer('updated_at', { mode: 'timestamp_ms' })
 			.default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
-			.$onUpdate(() => /* @__PURE__ */ new Date())
+			.$onUpdate(() => new Date())
 			.notNull()
 	},
 	(table) => [index('verification_identifier_idx').on(table.identifier)]
 );
 
 
-
-export const sessionRelations = relations(session, ({ one }) => ({
-	user: one(user, {
-		fields: [session.userId],
-		references: [user.id]
-	})
+export const customersRelations = relations(customers, ({many, one }) => ({
+	sessions: many(session),
 }));
 
-export const accountRelations = relations(account, ({ one }) => ({
-	user: one(user, {
-		fields: [account.userId],
-		references: [user.id]
+
+
+
+export const sessionRelations = relations(session, ({ one }) => ({
+	customers: one(customers, {
+		fields: [session.customerId],
+		references: [customers.id]
 	})
 }));

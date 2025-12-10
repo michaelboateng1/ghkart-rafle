@@ -1,33 +1,81 @@
-import { getUserById } from '$lib/query/queryData';
-import { updateNumberOfSpins } from '$lib/query/updateData';
+import { db } from "$lib/server/db"
+import { customers, user } from "$lib/server/db/schemas/schema.js";
+import { eq, and } from "drizzle-orm";
 
-let spins = 0
+export async function POST({ request }) {
+    try {
+        const { email } = await request.json();
 
-export async function POST({request}){
-    const {id} = await request.json();
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            return new Response(JSON.stringify({ message: "Valid email is required" }), { status: 400 });
+        }
 
-    if(spins < 3){
-        spins++
-    }
+        const userRecord = await db.select().from(user).where(eq(user.email, email)).limit(1);
 
-    try{
-        if(id && spins < 3){
+        // Check if user exists and is verified
+        if (!userRecord.length > 0 || !userRecord[0].emailVerified) {
+            return new Response(
+                JSON.stringify({ message: "User not found or not verified" }), 
+                { status: 404 }
+            );
+        }
 
-            const userData = getUserById(id);
-            console.log("userData: ", userData);
+        return await db.transaction(async (tx) => {
+            // Get customer with row-level lock for update
+            const [customer] = await tx.select()
+                .from(customers)
+                .where(eq(customers.email, email))
+                .for('update')
+                .limit(1);
 
-            if(userData[0].number_of_spin >! 3){
-                const updateSpin =  updateNumberOfSpins(userData[0].id);
-                console.log("updateSpin: ", updateSpin);
-            }else{
-                return new Response(JSON.stringify({message: "you only have 3 attempts.", numberOfSpin: userData[0].number_of_spin}), {status: 400});
+            if (!customer) {
+                return new Response(JSON.stringify({ message: "User not found" }), { status: 404 });
             }
 
-            return new Response(JSON.stringify({message: `you have ${Number(userData[0].number_of_spin) - 3} more to spin`}, {status: 200}))
-        }
-    }catch(err){
-        console.log(err);
-        return new Response(JSON.stringify({message: "Internal Error"}), {status: 500})
-    }
+            // Check if user has spins left
+            if (customer.numberOfSpin >= 3) {
+                return new Response(
+                    JSON.stringify({ 
+                        message: "You've used all your spins", 
+                        remainingSpins: 0 
+                    }), 
+                    { status: 400 }
+                );
+            }
 
+            // Calculate new values
+            const newSpinCount = customer.numberOfSpin + 1;
+            const remainingSpins = 3 - newSpinCount;
+
+            // Update the spin count
+            const [updatedCustomer] = await tx.update(customers)
+                .set({ 
+                    numberOfSpin: newSpinCount,
+                    updatedAt: new Date()
+                })
+                .where(
+                    and(
+                        eq(customers.id, customer.id),
+                        eq(customers.numberOfSpin, customer.numberOfSpin)
+                    )
+                )
+                .returning();
+
+            return new Response(
+                JSON.stringify({ 
+                    message: `Spin recorded. You have ${remainingSpins} spin(s) left.`,
+                    remainingSpins,
+                    totalSpins: newSpinCount
+                }), 
+                { status: 200 }
+            );
+        });
+        
+    } catch (error) {
+        console.error("Error updating user spins:", error);
+        return new Response(
+            JSON.stringify({ message: "Internal server error" }), 
+            { status: 500 }
+        );
+    }
 }

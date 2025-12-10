@@ -1,5 +1,5 @@
-import { db } from "./db";
-import { user, customers } from "./schema";
+import { db } from '$lib/server/db';
+import { user, customers } from '$lib/server/db/schemas/schema';
 import { eq } from "drizzle-orm";
 
 const prizes = ["laptop", "tablet", "watch", "phone"]

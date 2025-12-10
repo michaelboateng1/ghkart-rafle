@@ -27,9 +27,6 @@ import { user, customers } from '$lib/server/db/schemas/schema.js';
 import { eq } from 'drizzle-orm';
 import { randomUUID } from 'crypto';
 
-// import { getCustomerByEmail } from '$lib/query/queryData.js';
-import { insertUser } from '$lib/query/insertData.js';
-import { insertCustomer } from '$lib/query/insertData.js';
 
 export async function POST({ request }) {
 	try {
@@ -38,8 +35,7 @@ export async function POST({ request }) {
 		console.log('Processing signup for:', email);
 
 		// Check if user already exists
-		// console.log(getCustomerByEmail);
-		const existingUser = await db.select().from(customers).where(eq(customers.email, email)).limit(1);
+		const existingUser = await db.select().from(user).where(eq(user.email, email)).limit(1);
 
 		let userId;
 
@@ -48,57 +44,38 @@ export async function POST({ request }) {
 			userId = existingUser[0].id;
 		} else {
 			// Create new user in better-auth user table
-			try{
-				userId = randomUUID();
-				const now = new Date();
+			userId = randomUUID();
+			const now = new Date();
 
-				const userData = {
-					id: userId,
-					email: email,
-					name: `${firstName} ${lastName}`,
-					emailVerified: false,
-					createdAt: now,
-					updatedAt: now
-				}
+			// Create account
 
-				insertUser(userData);
+			await db.insert(user).values({
+				id: userId,
+				email: email,
+				name: `${firstName} ${lastName}`,
+				emailVerified: false,
+				createdAt: now,
+				updatedAt: now
+			});
 
+			console.log('User created with ID:', userId);
 
-				console.log('User created with ID:', userId);
+			// Create corresponding customer record
+			await db.insert(customers).values({
+				id: randomUUID(),
+				name: `${firstName} ${lastName}`,
+				email: email,
+				phoneNumber: phoneNumber,
+				address: location,
+				numberOfSpins: 0,
+				winPrice: false,
+				certificateGenerated: false,
+				userId: userId,
+				createdAt: now,
+				updatedAt: now
+			});
 
-				// Create corresponding customer record
-				const customerData = {
-					id: randomUUID(),
-					name: `${firstName} ${lastName}`,
-					email: email,
-					phoneNumber: phoneNumber,
-					address: location,
-					numberOfSpins: 0,
-					winPrice: 'false',
-					certificateGenerated: 'false',
-					userId: userId,
-					createdAt: now,
-					updatedAt: now
-				}
-
-				insertCustomer(customerData)
-
-				console.log('Customer record created');
-			}catch(error){
-				console.error('Error creating user:', error.message);
-				return new Response(
-					JSON.stringify({
-						success: false,
-						error: error.message || 'Failed to create account'
-					}),
-					{
-						status: 500,
-						headers: {
-							'Content-Type': 'application/json'
-						}
-					}
-				);
-			}
+			console.log('Customer record created');
 		}
 
 		// Send OTP for verification

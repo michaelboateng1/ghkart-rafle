@@ -191,15 +191,20 @@
 	// }
 
 	const updateUser = async () => {
-		const options = {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json"
+		try{
+			const options = {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json"
+				}
 			}
+			const req = await fetch("/update-user", options);
+			const data = await req.json();
+			console.log("Updated Customer Data: ", data);
 		}
-		const req = await fetch("/update-user", options);
-		const data = await req.json();
-		console.log("Updated Customer Data: ", data);
+		catch(err){
+			console.log(err)
+		}
 	}
 
 

@@ -1,14 +1,19 @@
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { db } from './server/db';
-
+import { sessions, customers, verification } from './server/db/schemas/schema';
 import { sendEmail } from './sendEmail';
 
 import { emailOTP } from 'better-auth/plugins';
 
 export const auth = betterAuth({
 	database: drizzleAdapter(db, {
-		provider: 'sqlite'
+		provider: 'sqlite',
+		schema: {
+			user: customers,
+			session: sessions,
+			verification: verification,
+		}
 	}),
 	emailAndPassword: {
 		enabled: true,

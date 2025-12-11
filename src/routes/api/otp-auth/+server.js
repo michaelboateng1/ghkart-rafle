@@ -23,7 +23,7 @@
 
 import { auth } from '$lib/auth';
 import { db } from '$lib/server/db';
-import { user, customers } from '$lib/server/db/schemas/schema.js';
+import {customers } from '$lib/server/db/schemas/schema.js';
 import { eq } from 'drizzle-orm';
 import { randomUUID } from 'crypto';
 
@@ -34,48 +34,31 @@ export async function POST({ request }) {
 
 		console.log('Processing signup for:', email);
 
-		// Check if user already exists
-		const existingUser = await db.select().from(user).where(eq(user.email, email)).limit(1);
+		// Check if customer already exists
+		const existingCustomer = await db.select().from(customers).where(eq(customers.email, email)).limit(1);
 
-		let userId;
+		let customerId;
 
-		if (existingUser.length > 0) {
-			console.log('User already exists:', existingUser[0].id);
-			userId = existingUser[0].id;
+		if (existingCustomer.length > 0) {
+			console.log('User already exists:', existingCustomer[0].id);
+			customerId = existingCustomer[0].id;
 		} else {
-			// Create new user in better-auth user table
-			userId = randomUUID();
+			
+			customerId = randomUUID();
 			const now = new Date();
 
-			// Create account
-
-			await db.insert(user).values({
-				id: userId,
-				email: email,
-				name: `${firstName} ${lastName}`,
-				emailVerified: false,
-				createdAt: now,
-				updatedAt: now
-			});
-
-			console.log('User created with ID:', userId);
-
-			// Create corresponding customer record
+			// Create new customer record
 			await db.insert(customers).values({
 				id: randomUUID(),
 				name: `${firstName} ${lastName}`,
 				email: email,
 				phoneNumber: phoneNumber,
 				address: location,
-				numberOfSpins: 0,
-				winPrice: false,
-				certificateGenerated: false,
-				userId: userId,
 				createdAt: now,
 				updatedAt: now
 			});
 
-			console.log('Customer record created');
+			console.log('New Customer record created');
 		}
 
 		// Send OTP for verification

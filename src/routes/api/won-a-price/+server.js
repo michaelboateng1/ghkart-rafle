@@ -1,28 +1,79 @@
-import { getCustomerById } from '$lib/query/queryData';
 import { db } from '$lib/server/db/index.js';
-import { customers } from '$lib/server/db/schemas/schema.js';
+import { sessions, customers } from "$lib/server/db/schemas/schema.js";
 import { eq } from 'drizzle-orm';
 
-export async function POST({request}){
-    const {id, price} = await request.json();
+export async function POST({ request, cookies }) {
+    try {
+        const { price } = await request.json();
 
-    const user = getCustomerById(id);
+        const sessionToken = cookies.get("better-auth.session_token");
 
-    try{
-        await db.transaction(async (data) => {
-            if(!user[0].win_price){
-                data.update(customers).set({win_price: true}).where(eq(customers.id, id));
+        if (!sessionToken) {
+            return new Response(
+                JSON.stringify({ message: "missing token" }),
+                { status: 400 }
+            );
+        }
+
+        const sessionRecord = await db.select()
+            .from(sessions)
+            .where(eq(sessions.token, sessionToken))
+            .limit(1);
+
+        if (!sessionRecord.length) {
+            return new Response(
+                JSON.stringify({ message: "missing user session" }),
+                { status: 400 }
+            );
+        }
+
+        const customerRecord = await db.select()
+            .from(customers)
+            .where(eq(customers.id, sessionRecord[0].customerId))
+            .limit(1);
+
+        if (!customerRecord.length) {
+            return new Response(
+                JSON.stringify({ message: "user not found" }),
+                { status: 400 }
+            );
+        }
+
+        const customer = customerRecord[0];
+
+        // Transaction — safe update
+        await db.transaction(async (tx) => {
+            // Lock the user row
+            const [lockedCustomer] = await tx.select()
+                .from(customers)
+                .where(eq(customers.id, customer.id))
+                .for("update")
+                .limit(1);
+
+            if (!lockedCustomer) return;
+
+            // If no prize yet → give prize
+            if (!lockedCustomer.win_price) {
+                await tx.update(customers)
+                    .set({
+                        win_price: true,
+                        price_name: price,
+                        updatedAt: new Date()
+                    })
+                    .where(eq(customers.id, lockedCustomer.id));
             }
+        });
 
-            if(user[0].price_name){
-                data.update(customers).set({price_name: price}).where(eq(customers.id, id));
+        return new Response(
+            JSON.stringify({ message: "user updated" }),
+            { status: 200 }
+        );
 
-            }
-        })
-        return new Response(JSON.stringify({message: "user updated"}), {status: 200})
-    }catch(err){
-        return new Response(JSON.stringify({message: "Internal server error"}), {status: 500})
-        console.log(err)
+    } catch (err) {
+        console.log(err);
+        return new Response(
+            JSON.stringify({ message: "Internal server error" }),
+            { status: 500 }
+        );
     }
-
 }

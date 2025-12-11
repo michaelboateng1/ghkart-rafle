@@ -10,7 +10,7 @@ export const customers = sqliteTable('customers', {
 	address: text('address').notNull(),
 	numberOfSpins: integer('number_of_spins').notNull().default(0),
 	winPrice: integer('win_price', {mode: "boolean"}).notNull().default(false),
-	priceName: text('price_name').notNull().default("no price"),
+	priceName: text('price_name').notNull().default("null"),
 	receivedPrice: integer('received_price', {mode: "boolean"}).notNull().default(false),
 	certificateGenerated: integer('certificate_generated', {mode: "boolean"}).notNull().default(false),
 	createdAt: integer('created_at', { mode: 'timestamp_ms' })
@@ -22,8 +22,8 @@ export const customers = sqliteTable('customers', {
 		.notNull()
 });
 
-export const session = sqliteTable(
-	'session',
+export const sessions = sqliteTable(
+	'sessions',
 	{
 		id: text('id').primaryKey(),
 		expiresAt: integer('expires_at', { mode: 'timestamp_ms' }).notNull(),
@@ -63,16 +63,16 @@ export const verification = sqliteTable(
 );
 
 
-export const customersRelations = relations(customers, ({many, one }) => ({
-	sessions: many(session),
+export const customersRelations = relations(customers, ({many}) => ({
+	sessions: many(sessions),
 }));
 
 
 
 
-export const sessionRelations = relations(session, ({ one }) => ({
+export const sessionsRelations = relations(sessions, ({ one }) => ({
 	customers: one(customers, {
-		fields: [session.customerId],
+		fields: [sessions.customerId],
 		references: [customers.id]
 	})
 }));

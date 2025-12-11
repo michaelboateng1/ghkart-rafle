@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "5e0cb16d-575f-40ee-aad0-aba4842709d2",
+  "id": "588f6c2a-c4e3-46e8-ae66-b669ff83d120",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "customers": {
@@ -72,7 +72,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": "'no price'"
+          "default": "'null'"
         },
         "received_price": {
           "name": "received_price",
@@ -128,8 +128,8 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
-    "session": {
-      "name": "session",
+    "sessions": {
+      "name": "sessions",
       "columns": {
         "id": {
           "name": "id",
@@ -190,8 +190,8 @@
         }
       },
       "indexes": {
-        "session_token_unique": {
-          "name": "session_token_unique",
+        "sessions_token_unique": {
+          "name": "sessions_token_unique",
           "columns": [
             "token"
           ],
@@ -206,9 +206,9 @@
         }
       },
       "foreignKeys": {
-        "session_customer_id_customers_id_fk": {
-          "name": "session_customer_id_customers_id_fk",
-          "tableFrom": "session",
+        "sessions_customer_id_customers_id_fk": {
+          "name": "sessions_customer_id_customers_id_fk",
+          "tableFrom": "sessions",
           "tableTo": "customers",
           "columnsFrom": [
             "customer_id"

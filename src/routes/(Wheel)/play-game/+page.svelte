@@ -190,6 +190,18 @@
 
 	// }
 
+	const updateUser = async () => {
+		const options = {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json"
+			}
+		}
+		const req = await fetch("/update-user", options);
+		const data = await req.json();
+		console.log("Updated Customer Data: ", data);
+	}
+
 
 	onMount(() => {
 		canvas2.width = window.innerWidth;
@@ -240,6 +252,7 @@
 		updateSelectorColor(selector, colors, rotation, sections);
 
 		spinBtn.onclick = () => {
+				updateUser();
 				spin({
 					rotation,
 					spinning,

@@ -1,31 +1,24 @@
-<script lang="ts">
+<script>
 	import { enhance } from '$app/forms';
-	import type { PageData } from './$types';
 	import { fade, fly } from 'svelte/transition';
 	
-
 	import PageHeader from "./components/PageHeader.svelte";
 	import StatsCards from "./components/StatsCards.svelte";
 	import Table from './components/Table.svelte';
-
-	let { data }: { data: PageData } = $props();
 
 	// State
 
 	let isEditModalOpen = $state(false);
 	
-	let editingUser = $state<any>(null);
 
 
 
 
-	function openEditModal(user: any) {
-		editingUser = user;
+	function openEditModal() {
 		isEditModalOpen = true;
 	}
 
 	function closeEditModal() {
-		editingUser = null;
 		isEditModalOpen = false;
 	}
 
@@ -39,16 +32,16 @@
 	 <PageHeader />
 
 	<!-- Stats Cards -->
-	 <StatsCards {data} />
+	 <StatsCards />
 
 	<!-- Table Section -->
-	 <Table {data} />
+	 <Table />
 </div>
 
 
 
 <!-- Edit Modal -->
-{#if isEditModalOpen && editingUser}
+{#if isEditModalOpen}
 	<div class="relative z-50" aria-labelledby="modal-title" role="dialog" aria-modal="true">
 		<div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
 		<div class="fixed inset-0 z-10 w-screen overflow-y-auto">
@@ -63,7 +56,7 @@
 							update();
 						};
 					}}>
-						<input type="hidden" name="id" value={editingUser.id} />
+						<input type="hidden" name="id" value={"id:9848098"} />
 						<div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
 							<h3 class="text-base font-semibold leading-6 text-gray-900">Edit Customer</h3>
 							<div class="mt-4 grid grid-cols-1 gap-y-4 max-h-[60vh] overflow-y-auto px-1">

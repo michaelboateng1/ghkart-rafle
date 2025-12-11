@@ -107,10 +107,6 @@ async function handleEmailVerificationPath({ event, resolve }) {
 				throw redirect(302, "/");
 			}
 
-			if (!customerRecord[0].winPrice && customerRecord[0].numberOfSpins >= 3) {
-				throw redirect(302, "https://ghkart.com");
-			}
-
 			if (customerRecord[0].winPrice && customerRecord[0].priceName !== "null" && !customerRecord[0].receivedPrice && !customerRecord[0].certificateGenerated) {
 				throw redirect(302, "/preview-certificate");
 			}

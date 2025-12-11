@@ -107,6 +107,10 @@
 	let showModal = false;
 	let selectedImage;
 	let showCertificateBtn = false;
+	let remainingSpins;
+	let noSpinLeft = false;
+	let tryAgain = false;
+	let spinLeftMessage;
 
 	let rotation = 0;
 	let spinVelocity = 0;
@@ -163,44 +167,45 @@
 		goto("/preview-certificate");
 	}
 
-	// const wonAPrice = async (price) => {
-	// 	try{
-	// 		price = labels.includes(price) ? price : "no price";
-	// 		console.log("storing price: ", price);
-	
-	// 		const options = {
-	// 			method: "PSOT",
-	// 			headers: {
-	// 				"Content-Type": "application/json"
-	// 			},
-	// 			body: JSON.stringify({id: customerId, price})
-	// 		}
-	
-	// 		const req = await fetch("/won-a-price", options);
-	// 		const data = await req.json();
-
-	// 		if(req.ok && data.success){
-	// 			savedPrice = true;
-	// 			return data;
-	// 		}
-
-	// 	}catch(err){
-	// 		console.log(err)
-	// 	}
-
-	// }
-
-	const updateUser = async () => {
+	const wonAPrice = async (price) => {
 		try{
+			price = labels.includes(price) ? price : "no price";
+			console.log("storing price: ", price);
+	
 			const options = {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json"
+				},
+				body: JSON.stringify({price})
+			}
+	
+			const req = await fetch("/api/won-a-price", options);
+			const data = await req.json();
+
+			if(req.ok){
+				savedPrice = true;
+				return data;
+			}
+
+		}catch(err){
+			console.log(err)
+		}
+
+	}
+
+	const updateUser = async () => {
+		try{
+			const options = {
+				method: "GET",
+				headers: {
+					"Content-Type": "application/json"
 				}
 			}
-			const req = await fetch("/update-user", options);
+			const req = await fetch("/api/update-user", options);
 			const data = await req.json();
-			console.log("Updated Customer Data: ", data);
+
+			return data;
 		}
 		catch(err){
 			console.log(err)
@@ -256,9 +261,17 @@
 		drawWheel(canvasWidth, canvasHeight, ctx, sections, rotation, colors, labels);
 		updateSelectorColor(selector, colors, rotation, sections);
 
-		spinBtn.onclick = () => {
-				updateUser();
-				spin({
+		spinBtn.onclick = async () => {
+			const data = await updateUser();
+
+			if (!data) return;
+
+			remainingSpins = data.remainingSpins;
+			spinLeftMessage = data.message || data.error;
+
+			console.log("Updated Customer  numberOfSpins: ", data);
+
+			spin({
 					rotation,
 					spinning,
 					spinBtn,
@@ -277,12 +290,21 @@
 						}
 	
 						if("selectedSection" in updates){
-							showCertificateBtn = labels[updates.selectedSection] === "Try Again" ? false : true;
+							if(labels[updates.selectedSection] === "Try Again"){
+								tryAgain = true;
+								showCertificateBtn =  false;	
+							}else{
+								tryAgain = false;
+								showCertificateBtn = true;
+							}
 						}
 	
 						if("selectedSection" in updates){
 							showConfetti = labels[updates.selectedSection] !== "Try Again" ? true : false;
-							// wonAPrice(labels[updates.selectedSection]);
+							// Call wonAPrice when user wins a prize (not "Try Again")
+							if(labels[updates.selectedSection] !== "Try Again"){
+								wonAPrice(labels[updates.selectedSection]);
+							}
 						}
 	
 						if ('rotation' in updates) {
@@ -296,14 +318,26 @@
 						let timeOut;
 						if ('result' in updates) {
 							resultDisplay = updates.result;
-							setTimeout(() => (showModal = true), 400);
-						}
+							setTimeout(() => {
+								showModal = true;
+
+								if (remainingSpins === 0) {
+									setTimeout(() => {
+										noSpinLeft = true;
+
+										setTimeout(() => goto("/"), 3000);
+									}, 3000);
+								}
+							}, 400);
+						}	
 					}
 				});
+
 			return;
 		};
 	});
 </script>
+
 
 <main class="m-0 p-5 flex flex-col items-center justify-center min-h-screen">
 	{#if showConfetti}
@@ -337,20 +371,30 @@
 				<button onclick={() => closeModal({ target: { id: 'modal' } })}><CloseIcon /></button>
 			</div>
 			<div class="text-center">
-				<p class="sm:text-3xl font-bold text-white">{resultDisplay}</p>
-				<div class="w-full flex items-center justify-center py-2">
-					<div class="h-auto w-[150px]">
-						<img
-							src={selectedImage}
-							width="150"
-							height="150"
-							class="w-full h-full object-cover"
-							alt=""
-						/>
+				{#if noSpinLeft && showModal}
+					<div class=" w-full h-fullflex flex-col items-center justify-center gap-8">
+						<p class="text-4xl text-white font-bold">Spin Limit Exceeded</p>
+						<p class="text-2xl text-white">Redirecting to home page...</p>
 					</div>
-				</div>
-				{#if showCertificateBtn}
-					<button onclick={() => navigateToCert()} class="py-2 text-sm px-10 mt-8" id="certificateBtn">CLAIM CERTIFICATE FOR YOUR PRIZE</button>
+				{:else if !noSpinLeft && showModal}
+					<p class="sm:text-3xl font-bold text-white">{resultDisplay}</p>
+					<div class="w-full flex items-center justify-center py-2">
+						<div class="h-auto w-[150px]">
+							<img
+									src={selectedImage}
+									width="150"
+									height="150"
+									class="w-full h-full object-cover"
+									alt=""
+								/>
+							</div>
+						</div>
+						{#if showCertificateBtn && !tryAgain}
+							<button onclick={() => navigateToCert()} class="py-2 text-sm px-10 mt-8" id="certificateBtn">CLAIM CERTIFICATE FOR YOUR PRIZE</button>
+						{/if}
+						{#if tryAgain && spinLeftMessage}
+							<p class="py-2 text-xl text-white px-10 mt-8">{spinLeftMessage}</p>
+						{/if}
 				{/if}
 			</div>
 		</div>

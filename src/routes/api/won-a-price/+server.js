@@ -42,27 +42,28 @@ export async function POST({ request, cookies }) {
         const customer = customerRecord[0];
 
         // Transaction — safe update
-        await db.transaction(async (tx) => {
-            // Lock the user row
-            const [lockedCustomer] = await tx.select()
+        db.transaction((tx) => {
+            // Fetch customer
+            const [lockedCustomer] = tx.select()
                 .from(customers)
                 .where(eq(customers.id, customer.id))
-                .for("update")
-                .limit(1);
+                .limit(1)
+                .all();
 
             if (!lockedCustomer) return;
 
             // If no prize yet → give prize
-            if (!lockedCustomer.win_price) {
-                await tx.update(customers)
+            if (!lockedCustomer.winPrice) {
+                tx.update(customers)
                     .set({
-                        win_price: true,
-                        price_name: price,
+                        winPrice: true,
+                        priceName: price,
                         updatedAt: new Date()
                     })
-                    .where(eq(customers.id, lockedCustomer.id));
+                    .where(eq(customers.id, lockedCustomer.id))
+                    .run();
             }
-        });
+        })();
 
         return new Response(
             JSON.stringify({ message: "user updated" }),

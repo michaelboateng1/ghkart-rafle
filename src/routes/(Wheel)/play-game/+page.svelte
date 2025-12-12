@@ -106,7 +106,6 @@
 	let resultDisplay;
 	let showModal = false;
 	let selectedImage;
-	let showCertificateBtn = false;
 	let remainingSpins;
 	let noSpinLeft = false;
 	let tryAgain = false;
@@ -163,10 +162,6 @@
 	// }
 
 
-	const navigateToCert = () => {
-		goto("/preview-certificate");
-	}
-
 	const wonAPrice = async (price) => {
 		try{
 			price = labels.includes(price) ? price : "no price";
@@ -185,7 +180,10 @@
 
 			if(req.ok){
 				savedPrice = true;
-				return data;
+				
+				if(data.success && savedPrice){
+					setTimeOut(() => goto("/preview-certificate"), 4000);
+				}
 			}
 
 		}catch(err){
@@ -292,10 +290,8 @@
 						if("selectedSection" in updates){
 							if(labels[updates.selectedSection] === "Try Again"){
 								tryAgain = true;
-								showCertificateBtn =  false;	
 							}else{
 								tryAgain = false;
-								showCertificateBtn = true;
 							}
 						}
 	
@@ -379,19 +375,16 @@
 				{:else if !noSpinLeft && showModal}
 					<p class="sm:text-3xl font-bold text-white">{resultDisplay}</p>
 					<div class="w-full flex items-center justify-center py-2">
-						<div class="h-auto w-[150px]">
+						<div class="h-auto w-[200px]">
 							<img
 									src={selectedImage}
-									width="150"
-									height="150"
+									width="200"
+									height="200"
 									class="w-full h-full object-cover"
 									alt=""
 								/>
 							</div>
 						</div>
-						{#if showCertificateBtn && !tryAgain}
-							<button onclick={() => navigateToCert()} class="py-2 text-sm px-10 mt-8" id="certificateBtn">CLAIM CERTIFICATE FOR YOUR PRIZE</button>
-						{/if}
 						{#if tryAgain && spinLeftMessage}
 							<p class="py-2 text-xl text-white px-10 mt-8">{spinLeftMessage}</p>
 						{/if}
@@ -456,14 +449,12 @@
 			box-shadow 0.2s;
 	}
 
-	button#spinBtn:hover,
-	button#certificateBtn:hover {
+	button#spinBtn:hover {
 		transform: translateY(-2px);
 		box-shadow: 0 7px 20px rgba(0, 0, 0, 0.3);
 	}
 
-	button#spinBtn:active,
-	button#certificateBtn:active {
+	button#spinBtn:active {
 		transform: translateY(0);
 	}
 

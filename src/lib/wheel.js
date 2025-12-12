@@ -1,3 +1,5 @@
+import { playAudio } from './audio/wheelAudio.js';
+
 export function drawWheel(canvasWidth, canvasHeight, ctx, sections, rotation, colors, labels) {
 	const centerX = canvasWidth / 2;
 	const centerY = canvasHeight / 2;
@@ -197,6 +199,9 @@ export function spin({
 	const duration = 5000;
 	const startTime = Date.now();
 	const startRotation = rotation;
+	
+	// Track the current section to detect changes
+	let lastSection = getSectionAtTop(rotation, sections);
 
 	function animate() {
 		const currentTime = Date.now();
@@ -211,6 +216,14 @@ export function spin({
 
 		drawWheel(canvasWidth, canvasHeight, ctx, sections, newRotation, colors, labels);
 		updateSelectorColor(selector, colors, newRotation, sections);
+		
+		// Check if we've crossed into a new section
+		const currentSection = getSectionAtTop(newRotation, sections);
+		if (currentSection !== lastSection) {
+			// Play tick sound on section change
+			playAudio();
+			lastSection = currentSection;
+		}
 
 		if (progress < 1) {
 			animationId = requestAnimationFrame(animate);

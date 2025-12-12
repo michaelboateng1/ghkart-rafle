@@ -87,11 +87,20 @@
 			const data = await response.json();
 
 			if (response.ok && data.success) {
-				successMessage = 'Email verified successfully!';
-				// Redirect to dashboard or next step after short delay
-				setTimeout(() => {
-					goto('/play-game');
-				}, 1500);
+				// Check if user has exceeded spins
+				if (data.spinsExceeded && data.redirectUrl) {
+					successMessage = data.message || 'You have used all your spins. Redirecting...';
+					// Redirect to external URL after short delay
+					setTimeout(() => {
+						window.location.href = data.redirectUrl;
+					}, 1500);
+				} else {
+					successMessage = 'Email verified successfully!';
+					// Redirect to dashboard or next step after short delay
+					setTimeout(() => {
+						goto('/play-game');
+					}, 1500);
+				}
 			} else {
 				errorMessage = data.error || 'Invalid OTP. Please try again.';
 				// Clear OTP inputs on error

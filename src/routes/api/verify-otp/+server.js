@@ -4,6 +4,8 @@ import { sessions, customers } from '$lib/server/db/schemas/schema.js';
 import { eq } from 'drizzle-orm';
 import { randomBytes, randomUUID } from 'crypto';
 
+import { goto } from '$app/navigation';
+
 export async function POST({ request, cookies }) {
     try {
         const { email, otp } = await request.json();
@@ -43,6 +45,34 @@ export async function POST({ request, cookies }) {
         await db.update(customers)
             .set({ emailVerified: true })
             .where(eq(customers.email, email));
+
+        // Check if user has exceeded spin limit
+        const customerHitSinLimit = customerRecord[0].numberOfSpins >= 3;
+        const customerRecievedPrice = customerRecord[0].winPrice && customerRecord[0].priceName && customerRecord[0].certificateGenerated && customerRecord[0].receivedPrice;
+
+
+        const certificateNotGenerated = customerRecord[0].winPrice && customerRecord[0].priceName && !customerRecord[0].receivedPrice && !customerRecord[0].certificateGenerated;
+        const certificateGeneratedButNotRecievedPrice = customerRecord[0].winPrice && customerRecord[0].priceName && customerRecord[0].certificateGenerated && !customerRecord[0].receivedPrice;
+
+        if (customerHitSinLimit || customerRecievedPrice) {
+            console.log("User has used all spins, sending redirect response");
+            return new Response(
+                JSON.stringify({
+                    success: true,
+                    spinsExceeded: true,
+                    redirectUrl: "https://ghkart.com",
+                    message: "You have used all your spins. Redirecting..."
+                }),
+                { 
+                    status: 200,
+                    headers: { 'Content-Type': 'application/json' }
+                }
+            );
+        }else if(certificateNotGenerated){
+            goto("/preview-certificate");
+        }else if(certificateGeneratedButNotRecievedPrice){
+            goto("/prize-info");
+        }
 
         const customerId = customerRecord[0].id;
         

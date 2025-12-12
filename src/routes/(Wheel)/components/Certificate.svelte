@@ -8,6 +8,7 @@
     let scalingContainer;
     let scale = 1;
     let logoBase64 = "";
+    let redirectAfterDownload = false;
 
     // Format current date
     function getCurrentDate() {
@@ -74,37 +75,34 @@
         });
     }
 
-    // const handleDBChecks = async() => {
-    //     try{
-    //         const id = page.state;
+    const handleDBChecks = async() => {
+        try{
+            const id = page.state;
 
-    //         const options = {
-    //             method: "POST",
-    //             headers: {
-    //                 "Content-Type": "application/json"
-    //             },
-    //             body: JSON.stringify({id})
-    //         }
+            const options = {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            }
 
-    //         const request = await fetch('/download-certificate', options);
-    //         const data = await request.json();
+            const request = await fetch('/download-certificate', options);
+            const data = await request.json();
 
-    //         if(request.ok && data){
-    //             return data
-    //         }
+            if(request.ok && data.success){
+                redirectAfterDownload = true;
+                return true;
+            }
 
-    //         throw new Error("Somthing didn't work out");
+            throw new Error("Somthing didn't work out");
 
-    //     }catch(err){
-    //         console.log(err);
-    //         // Allow download even if DB check fails for preview purposes or if offline
-    //          return true; 
-    //     }
-    // }
+        }catch(err){
+            console.log(err)
+        }
+    }
 
     // Download certificate as PDF
-    function downloadCertificate() {
-        // if(!handleDBChecks()) return; // Uncomment in production
+    function downloadCertificate() { 
 
         let fileName = 'Ghkart_XMAS_2025.pdf';
 
@@ -131,7 +129,8 @@
         // Generate PDF
         // Temporarily reset transform for PDF generation if needed, but we are capturing the inner element
         html2pdf().set(opt).from(certificatePreview).save().then(() => {
-            alert('Certificate downloaded successfully! You can now send it to the office.');
+            handleDBChecks();
+            setTimeout(() => goto("/prize-info"), 1500);
         }).catch(err => {
             console.error('PDF generation failed:', err);
             alert(`Failed to generate PDF: ${err.message || err}`);

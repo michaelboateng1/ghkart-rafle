@@ -1,19 +1,72 @@
-import { getCustomerById } from '$lib/query/queryData.js';
-import { updateCertificateGenerated } from '$lib/query/updateData.js';
+export async function POST({ request, cookies }) {
+    try {
 
-export async function POST({request}){
-    try{        
-        const {id} = request.json();
-    
-        const userData = getCustomerById(id);
-    
-        if(userData[0].win_price && userData[0].price_name !== "no price" && !userData[0].certificate_generated && !userData[0].price_collected){
-            updateCertificateGenerated(id);
-            return new Response(JSON.stringify({message: "claim your cert now"}, {status: 200}));
+        const sessionToken = cookies.get("better-auth.session_token");
+
+        if (!sessionToken) {
+            return new Response(
+                JSON.stringify({ message: "missing token" }),
+                { status: 400 }
+            );
         }
-        return new Response(JSON.stringify({message: "you've won no price yet"}), {status: 401});
-    }catch(err){
+
+        const sessionRecord = await db.select()
+            .from(sessions)
+            .where(eq(sessions.token, sessionToken))
+            .limit(1);
+
+        if (!sessionRecord.length) {
+            return new Response(
+                JSON.stringify({ message: "missing user session" }),
+                { status: 400 }
+            );
+        }
+
+        const customerRecord = await db.select()
+            .from(customers)
+            .where(eq(customers.id, sessionRecord[0].customerId))
+            .limit(1);
+
+        if (!customerRecord.length) {
+            return new Response(
+                JSON.stringify({ message: "user not found" }),
+                { status: 400 }
+            );
+        }
+
+        const customer = customerRecord[0];
+
+        // Transaction — safe update
+        db.transaction((tx) => {
+            // Fetch customer
+            const [lockedCustomer] = tx.select()
+                .from(customers)
+                .where(eq(customers.id, customer.id))
+                .limit(1)
+                .all();
+
+            if (!lockedCustomer) return;
+
+            // If no certificate generated yet → give prize
+            if (lockedCustomer.winPrice && lockedCustomer.priceName && !lockedCustomer.certificateGenerated) {
+                tx.update(customers)
+                    .set({
+                        certificateGenerated: true,
+                        updatedAt: new Date()
+                    })
+                    .where(eq(customers.id, lockedCustomer.id))
+                    .run();
+            }
+        })();
+
+        return new Response(JSON.stringify({
+                success: true,
+                certificateGenerated: true}), {status: 200});
+
+    } catch (err) {
         console.log(err);
-        return new Response(JSON.stringify({message: "Internal Server Error"}, {status: 500}));
+        return new Response(JSON.stringify({ message: "Internal server error" }),
+            { status: 500 }
+        );
     }
 }

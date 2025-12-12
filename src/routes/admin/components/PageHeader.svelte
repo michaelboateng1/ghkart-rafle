@@ -1,4 +1,4 @@
-<script lang="ts">
+<script>
     import {fly } from 'svelte/transition';
     import { enhance } from '$app/forms';
 
@@ -24,7 +24,7 @@
         <button
             onclick={openAddModal}
             type="button"
-            class="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            class="inline-flex items-center rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm curser-pointer hover:bg-green-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600"
         >
             Add Customer
         </button>
@@ -54,26 +54,26 @@
 									<div class="mt-4 grid grid-cols-1 gap-y-4">
 										<div>
 											<label for="newName" class="block text-sm font-medium text-gray-700">Name</label>
-											<input type="text" name="name" id="newName" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
+											<input type="text" name="name" id="newName" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm" />
 										</div>
 										<div>
 											<label for="newEmail" class="block text-sm font-medium text-gray-700">Email</label>
-											<input type="email" name="email" id="newEmail" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
+											<input type="email" name="email" id="newEmail" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm" />
 										</div>
 										<div>
 											<label for="newPhone" class="block text-sm font-medium text-gray-700">Phone</label>
-											<input type="text" name="phoneNumber" id="newPhone" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
+											<input type="text" name="phoneNumber" id="newPhone" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm" />
 										</div>
 										<div>
 											<label for="newAddress" class="block text-sm font-medium text-gray-700">Address</label>
-											<input type="text" name="address" id="newAddress" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
+											<input type="text" name="address" id="newAddress" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm" />
 										</div>
 									</div>
 								</div>
 							</div>
 						</div>
 						<div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-							<button type="submit" class="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 sm:ml-3 sm:w-auto">Create</button>
+							<button type="submit" class="inline-flex w-full justify-center rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500 sm:ml-3 sm:w-auto">Create</button>
 							<button type="button" onclick={closeAddModal} class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto">Cancel</button>
 						</div>
 					</form>

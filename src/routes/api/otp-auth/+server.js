@@ -28,7 +28,7 @@ import { eq } from 'drizzle-orm';
 import { randomUUID } from 'crypto';
 
 
-export async function POST({ request }) {
+export async function POST({ request, cookies }) {
 	try {
 		const { firstName, lastName, email, phoneNumber, location } = await request.json();
 
@@ -70,6 +70,19 @@ export async function POST({ request }) {
 		});
 
 		console.log('OTP sent successfully');
+
+		const now = new Date();
+        const expiresAt = new Date(now.getTime() + 3 * 60 * 1000);
+
+		cookies.set("ghkart.user_email", email, {
+            path: "/",
+            expires: expiresAt,
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production" || process.env.NODE_ENV === "prod",
+            sameSite: "lax"
+        });
+
+        console.log("Session created successfully!", cookies.get("ghkart.user_email"));
 
 		return new Response(
 			JSON.stringify({

@@ -6,6 +6,9 @@
 	import StatsCards from "./components/StatsCards.svelte";
 	import Table from './components/Table.svelte';
 
+	// Props
+	let { data, stats } = $props();
+
 	// State
 
 	let isEditModalOpen = $state(false);
@@ -32,10 +35,10 @@
 	 <PageHeader />
 
 	<!-- Stats Cards -->
-	 <StatsCards />
+	 <StatsCards customers={data.customers} />
 
 	<!-- Table Section -->
-	 <Table />
+	 <Table customers={data.customers} />
 </div>
 
 
@@ -62,35 +65,35 @@
 							<div class="mt-4 grid grid-cols-1 gap-y-4 max-h-[60vh] overflow-y-auto px-1">
 								<div>
 									<label for="editName" class="block text-sm font-medium text-gray-700">Name</label>
-									<input type="text" name="name" id="editName" value={editingUser.name} class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
+									<input type="text" name="name" id="editName" value={"Michael Boateng"} class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
 								</div>
 								<div>
 									<label for="editEmail" class="block text-sm font-medium text-gray-700">Email</label>
-									<input type="email" name="email" id="editEmail" value={editingUser.email} readonly class="mt-1 block w-full rounded-md border-gray-300 bg-gray-100 shadow-sm sm:text-sm" />
+									<input type="email" name="email" id="editEmail" value={"michaelboateng064@gmail.com"} readonly class="mt-1 block w-full rounded-md border-gray-300 bg-gray-100 shadow-sm sm:text-sm" />
 								</div>
 								
-								{#if editingUser.customer}
+								{#if true}
 									<div>
 										<label for="editPhone" class="block text-sm font-medium text-gray-700">Phone</label>
-										<input type="text" name="phoneNumber" id="editPhone" value={editingUser.customer.phoneNumber} class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
+										<input type="text" name="phoneNumber" id="editPhone" value={89857654321} class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
 									</div>
 									<div class="grid grid-cols-2 gap-4">
 										<div>
 											<label for="editSpins" class="block text-sm font-medium text-gray-700">Spins</label>
-											<input type="number" name="numberOfSpins" id="editSpins" value={editingUser.customer.numberOfSpins} class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
+											<input type="number" name="numberOfSpins" id="editSpins" value={3} class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
 										</div>
 										<div>
 											<label for="editPriceName" class="block text-sm font-medium text-gray-700">Price Name</label>
-											<input type="text" name="priceName" id="editPriceName" value={editingUser.customer.priceName} class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
+											<input type="text" name="priceName" id="editPriceName" value={Battry} class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
 										</div>
 									</div>
 									<div class="space-y-2">
 										<div class="flex items-center">
-											<input id="editWinPrice" name="winPrice" type="checkbox" checked={editingUser.customer.winPrice} class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
+											<input id="editWinPrice" name="winPrice" type="checkbox" checked={true} class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
 											<label for="editWinPrice" class="ml-2 block text-sm text-gray-900">Win Price</label>
 										</div>
 										<div class="flex items-center">
-											<input id="editPriceCollected" name="priceCollected" type="checkbox" checked={editingUser.customer.priceCollected} class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
+											<input id="editPriceCollected" name="priceCollected" type="checkbox" checked={false} class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
 											<label for="editPriceCollected" class="ml-2 block text-sm text-gray-900">Price Collected</label>
 										</div>
 									</div>

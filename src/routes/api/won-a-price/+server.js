@@ -2,6 +2,8 @@ import { db } from '$lib/server/db/index.js';
 import { sessions, customers } from "$lib/server/db/schemas/schema.js";
 import { eq } from 'drizzle-orm';
 
+import {goto} from '$app/navigation';
+
 export async function POST({ request, cookies }) {
     try {
         const { price } = await request.json();
@@ -65,15 +67,14 @@ export async function POST({ request, cookies }) {
             }
         })();
 
-        return new Response(
-            JSON.stringify({ message: "user updated" }),
-            { status: 200 }
-        );
+        return new Response(JSON.stringify({
+                success: true,
+                won: true,
+                redirectUrl: "/preview-certificate"}), {status: 200});
 
     } catch (err) {
         console.log(err);
-        return new Response(
-            JSON.stringify({ message: "Internal server error" }),
+        return new Response(JSON.stringify({ message: "Internal server error" }),
             { status: 500 }
         );
     }

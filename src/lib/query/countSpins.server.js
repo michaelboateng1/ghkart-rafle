@@ -9,21 +9,28 @@ export function incrementSpin(customerId, maxSpins = 3) {
             .from(customers)
             .where(eq(customers.id, customerId))
             .limit(1)
-            .all();
+            .all()
 
         if (!lockedCustomer) {
-            return { error: "User not found" };
-        }
-
-        if (!lockedCustomer.emailVerified) {
-            return { error: "Customer not verified", status: 403 };
+            return {
+                success: false,
+                message: "User not found. Redirecting...",
+                redirectUrl: "/",
+                status: 400
+            };
         }
 
         if (lockedCustomer.numberOfSpins >= maxSpins) {
+            
             return {
-                error: "You've used all your spins",
-                remainingSpins: 0
-            };
+                success: false,
+                winPrice: lockedCustomer.winPrice,
+                priceName: lockedCustomer.priceName,
+                message: "You've used all your spins. Redirecting...",
+                remainingSpins: 0,
+                redirectUrl: "https://ghkart",
+                status: 302
+            }
         }
 
         const newSpinCount = lockedCustomer.numberOfSpins + 1;
@@ -45,7 +52,8 @@ export function incrementSpin(customerId, maxSpins = 3) {
             success: true,
             message: `You have ${remainingSpins} spin(s) left.`,
             remainingSpins,
-            totalSpins: newSpinCount
+            totalSpins: newSpinCount,
+            status: 200
         };
     });
 }

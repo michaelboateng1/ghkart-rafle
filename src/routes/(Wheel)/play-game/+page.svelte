@@ -11,6 +11,7 @@
 
 	import { onMount } from 'svelte';
 	import { drawWheel, updateSelectorColor, spin } from '$lib/wheel';
+	import { playAudio as playButtonClickAudio } from '$lib/audio/buttonClickAudio.js';
 
 	import WheelParticle from '$lib/wheelBackgroundAnimation';
 
@@ -20,7 +21,6 @@
 	let canvas3;
 	let showConfetti = false;
 	let confettiAnimationStarted = false;
-	let savedPrice = false;
 
 	$: if(showConfetti && canvas3 && !confettiAnimationStarted){
 		confettiAnimationStarted = true;
@@ -110,6 +110,10 @@
 	let noSpinLeft = false;
 	let tryAgain = false;
 	let spinLeftMessage;
+	let showCertificateBtn = false;
+	let redirectMessage;
+	let savedPrice = false;
+
 
 	let rotation = 0;
 	let spinVelocity = 0;
@@ -178,16 +182,19 @@
 			const req = await fetch("/api/won-a-price", options);
 			const data = await req.json();
 
-			if(req.ok){
-				savedPrice = true;
-				
-				if(data.success && savedPrice){
-					setTimeOut(() => goto("/preview-certificate"), 4000);
-				}
+
+			if(req.ok && data.success){
+				savedPrice = data.winPrice && data.priceName !== "null" ? true : false;
+				console.log("IS DATA SAVED? ", savedPrice);
+			}
+
+			if(!savedPrice && data.redirectUrl){
+				console.log("REDIRECT MESSAGE: ");
+				setTimeout(() => goto(data.redirectUrl), 1500);
 			}
 
 		}catch(err){
-			console.log(err)
+			console.log("ERROR RETURN FROM DATABASE OPERATIONS: ", err)
 		}
 
 	}
@@ -203,7 +210,15 @@
 			const req = await fetch("/api/update-user", options);
 			const data = await req.json();
 
-			return data;
+			if(req.ok && req.status === 200){
+				return data
+			}else{
+				console.log("DONE WITH DATABASE OPERATIONS: ", 	data);
+				console.log("Request: ", req);
+				redirectMessage = data.message
+				setTimeout(() => window.location = data.redirectUrl, 3000);
+			}
+
 		}
 		catch(err){
 			console.log(err)
@@ -260,14 +275,17 @@
 		updateSelectorColor(selector, colors, rotation, sections);
 
 		spinBtn.onclick = async () => {
-			const data = await updateUser();
+		// Play button click sound
+		playButtonClickAudio();
+		
+		const data = await updateUser();
 
-			if (!data) return;
+		if (!data) return;
 
-			remainingSpins = data.remainingSpins;
-			spinLeftMessage = data.message || data.error;
+		remainingSpins = data.remainingSpins;
+		spinLeftMessage = data.message || data.error;
 
-			console.log("Updated Customer  numberOfSpins: ", data);
+		console.log("Updated Customer  numberOfSpins: ", data);
 
 			spin({
 					rotation,
@@ -283,25 +301,28 @@
 					selector,
 					onUpdate: (updates) => {
 						if ('selectedSection' in updates) {
-							console.log(updates.selectedSection);
+							console.log("Selected product: ", updates.selectedSection);
 							selectedImage = productImages[updates.selectedSection];
-						}
-	
-						if("selectedSection" in updates){
+							console.log("😱🥳🎊🎉: ", savedPrice);
+
 							if(labels[updates.selectedSection] === "Try Again"){
 								tryAgain = true;
 							}else{
 								tryAgain = false;
 							}
+
+							showConfetti = labels[updates.selectedSection] !== "Try Again" ? true : false;
+							showCertificateBtn = labels[updates.selectedSection] !== "Try Again" ? true : false;
+							// Call wonAPrice when user wins a prize (not "Try Again")
+							wonAPrice(labels[updates.selectedSection]);
+							// console.log("User won and redirecting 6")
+							// if(labels[updates.selectedSection] !== "Try Again" && savedPrice){
+							// 	console.log("User won and redirecting 7")
+							// }
+
+							console.log("😱🥳🎊🎉: ", savedPrice);
 						}
 	
-						if("selectedSection" in updates){
-							showConfetti = labels[updates.selectedSection] !== "Try Again" ? true : false;
-							// Call wonAPrice when user wins a prize (not "Try Again")
-							if(labels[updates.selectedSection] !== "Try Again"){
-								wonAPrice(labels[updates.selectedSection]);
-							}
-						}
 	
 						if ('rotation' in updates) {
 							rotation = updates.rotation;
@@ -348,7 +369,11 @@
 		></div>
 		<canvas bind:this={canvas} id="wheel" class="block z-20" width={400} height={400}></canvas>
 	</div>
-	<button bind:this={spinBtn} class="py-3 px-10 mt-8 z-20" id="spinBtn">SPIN THE WHEEL</button>
+	{#if !savedPrice}
+		<button bind:this={spinBtn} class="py-3 px-10 mt-8 z-20" id="spinBtn">SPIN THE WHEEL</button>
+	{:else if savedPrice && !showModal}
+		<button onclick={() => goto("/preview-certificate")} class="py-2 px-10" id="spinBtn">Claim certificate for your prize</button>
+	{/if}
 </main>
 
 {#if showModal}
@@ -385,6 +410,9 @@
 								/>
 							</div>
 						</div>
+						{#if !tryAgain && showCertificateBtn}
+							<button onclick={() => goto("/preview-certificate")} class="py-2 px-10" id="spinBtn">Claim certificate for your prize</button>
+						{/if}
 						{#if tryAgain && spinLeftMessage}
 							<p class="py-2 text-xl text-white px-10 mt-8">{spinLeftMessage}</p>
 						{/if}

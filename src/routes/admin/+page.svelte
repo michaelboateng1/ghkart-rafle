@@ -1,112 +1,100 @@
 <script>
-	import { enhance } from '$app/forms';
-	import { fade, fly } from 'svelte/transition';
-	
-	import PageHeader from "./components/PageHeader.svelte";
-	import StatsCards from "./components/StatsCards.svelte";
-	import Table from './components/Table.svelte';
+	import GhkartLogo from '$lib/assets/ghkartchristmaslogo.png';
 
-	// Props
-	let { data, stats } = $props();
+	import { onMount } from 'svelte';
+	import Particle from '$lib/backgroundAnimation';
 
-	// State
+	const backgroundParticles = [];
 
-	let isEditModalOpen = $state(false);
-	
+	let canvas;
+
+	onMount(() => {
+		canvas.width = window.innerWidth;
+		canvas.height = window.innerHeight;
+		const ctx = canvas.getContext('2d');
+
+		function hundleParticles() {
+			for (let i = 0; i <= 10; i++) {
+				const canvasWidth = canvas.width;
+				const canvasHeight = canvas.height;
+				backgroundParticles.push(new Particle(canvasWidth, canvasHeight));
+			}
+		}
+
+		hundleParticles();
+
+		function animate() {
+			ctx.fillStyle = 'rgba(255, 255, 255, .2)';
+			ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+			for (let i = 0; i < backgroundParticles.length; i++) {
+				backgroundParticles[i].draw(ctx);
+				backgroundParticles[i].update();
+			}
+
+			requestAnimationFrame(animate);
+		}
+
+		animate();
+	});
+
+    let emailInput;
+	let isLoading = false;
 
 
+    async function handleSubmit(e) {
+        e.preventDefault();
+		isLoading = true;
 
+		try{
+			const options = {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: {
+					email: emailInput.value,
+				}
+			}
 
-	function openEditModal() {
-		isEditModalOpen = true;
-	}
-
-	function closeEditModal() {
-		isEditModalOpen = false;
-	}
-
-
-
-
+			const response = await fetch("/api/admin-auth", options);
+			const data = await response.json();
+			console.log(data);
+			emailInput.value = "";
+		}catch(err){
+			console.log(err);
+		}finally{
+			isLoading = false;
+		}
+		
+    }
 </script>
 
-<div class="space-y-6">
-	<!-- Page Header -->
-	 <PageHeader />
-
-	<!-- Stats Cards -->
-	 <StatsCards customers={data.customers} />
-
-	<!-- Table Section -->
-	 <Table customers={data.customers} />
-</div>
-
-
-
-<!-- Edit Modal -->
-{#if isEditModalOpen}
-	<div class="relative z-50" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-		<div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
-		<div class="fixed inset-0 z-10 w-screen overflow-y-auto">
-			<div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-				<div
-					transition:fly={{ y: 20, duration: 200 }}
-					class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg"
-				>
-					<form action="?/updateUser" method="POST" use:enhance={() => {
-						return async ({ update, result }) => {
-							if (result.type === 'success') closeEditModal();
-							update();
-						};
-					}}>
-						<input type="hidden" name="id" value={"id:9848098"} />
-						<div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
-							<h3 class="text-base font-semibold leading-6 text-gray-900">Edit Customer</h3>
-							<div class="mt-4 grid grid-cols-1 gap-y-4 max-h-[60vh] overflow-y-auto px-1">
-								<div>
-									<label for="editName" class="block text-sm font-medium text-gray-700">Name</label>
-									<input type="text" name="name" id="editName" value={"Michael Boateng"} class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
-								</div>
-								<div>
-									<label for="editEmail" class="block text-sm font-medium text-gray-700">Email</label>
-									<input type="email" name="email" id="editEmail" value={"michaelboateng064@gmail.com"} readonly class="mt-1 block w-full rounded-md border-gray-300 bg-gray-100 shadow-sm sm:text-sm" />
-								</div>
-								
-								{#if true}
-									<div>
-										<label for="editPhone" class="block text-sm font-medium text-gray-700">Phone</label>
-										<input type="text" name="phoneNumber" id="editPhone" value={89857654321} class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
-									</div>
-									<div class="grid grid-cols-2 gap-4">
-										<div>
-											<label for="editSpins" class="block text-sm font-medium text-gray-700">Spins</label>
-											<input type="number" name="numberOfSpins" id="editSpins" value={3} class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
-										</div>
-										<div>
-											<label for="editPriceName" class="block text-sm font-medium text-gray-700">Price Name</label>
-											<input type="text" name="priceName" id="editPriceName" value={Battry} class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
-										</div>
-									</div>
-									<div class="space-y-2">
-										<div class="flex items-center">
-											<input id="editWinPrice" name="winPrice" type="checkbox" checked={true} class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
-											<label for="editWinPrice" class="ml-2 block text-sm text-gray-900">Win Price</label>
-										</div>
-										<div class="flex items-center">
-											<input id="editPriceCollected" name="priceCollected" type="checkbox" checked={false} class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
-											<label for="editPriceCollected" class="ml-2 block text-sm text-gray-900">Price Collected</label>
-										</div>
-									</div>
-								{/if}
-							</div>
-						</div>
-						<div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-							<button type="submit" class="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 sm:ml-3 sm:w-auto">Save Changes</button>
-							<button type="button" onclick={closeEditModal} class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto">Cancel</button>
-						</div>
-					</form>
-				</div>
+<div class="absolute w-full h-full flex items-center justify-center">
+	<canvas class="hidden sm:block absolute top-0 left-0 w-full h-full" bind:this={canvas}></canvas>
+	<main
+		class=" h-full w-full sm:w-auto sm:h-auto px-10 sm:px-20 py-10 bg-gray-50 sm:rounded-2xl sm:drop-shadow-2xl flex flex-col justify-center"
+	>
+		<div class="flex items-center justify-center gap-2 mb-5">
+			<div class=" w-[150px] sm:w-[200px] h-auto bg-white">
+				<img src={GhkartLogo} alt="GH-kart Logo" class="w-full h-full object-cover" />
 			</div>
 		</div>
-	</div>
-{/if}
+		<form action="" method="get" class="space-y-3">
+            <div class="flex flex-col items-start justify-center">
+                <input bind:this={emailInput}
+                    type="email"
+                    name="email"
+                    id="email"
+                    placeholder="Fill in your email..."
+                    class="w-full border-0 border-b-2 border-green-400 font-semibold bg-gray-50"
+                />
+            </div>
+        
+            <button disable={isLoading} onclick={(e) => handleSubmit(e)}
+                class="mt-5 w-full bg-green-400 text-center p-2 text-lg font-bold text-white capitalize rounded-lg cursor-pointer hover:bg-orange-400 active:bg-green-400 transition-colors duration-300"
+                type="submit">{isLoading ? 'Sending...' : 'Login'}</button
+            >
+        </form>
+	</main>
+</div>

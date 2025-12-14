@@ -1,6 +1,7 @@
 <script>
     import { onMount } from "svelte";
-    import { page } from "$app/state";
+    import { playAudio as playCertificateAudio } from "$lib/audio/downloadCertificateAudio.js";
+    import {goto} from "$app/navigation";
 
     import ghkartchristmaslogo from "$lib/assets/ghkartchristmaslogo404.png";
 
@@ -75,39 +76,50 @@
         });
     }
 
+    const getWinnersData = async() => {
+        const req = await fetch("/api/winner-info");
+        const data = await req.json();
+        console.log("Winner Data: ", JSON.parse(data));
+    }
+
     const handleDBChecks = async() => {
-        try{
-            const id = page.state;
 
             const options = {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                }
             }
 
-            const request = await fetch('/download-certificate', options);
+            const request = await fetch('/api/download-certificate', options);
             const data = await request.json();
 
-            if(request.ok && data.success){
-                redirectAfterDownload = true;
-                return true;
+            console.log("RUNING DB CHECKS FOR DOWNLOAD: ", data);
+            console.log("parse cookies: ", JSON.parse(data.winner));
+
+            if(request.ok && request.status === 200){
+                if(data.certificateGenerated){
+                    redirectAfterDownload = true;
+                }
+            }else{
+                if(data.goToGhKart){
+                    setTimeout(() => window.location = data.redirectUrl, 1500);
+                }else{
+                    setTimeout(() => goto(data.redirectUrl), 1500);
+                }
+                return
             }
 
             throw new Error("Somthing didn't work out");
 
-        }catch(err){
-            console.log(err)
-        }
     }
 
     // Download certificate as PDF
     function downloadCertificate() { 
 
+        handleDBChecks();
+
         let fileName = 'Ghkart_XMAS_2025.pdf';
 
-        // 🔥 Convert SVGs so html2pdf doesn't hide them
-        convertSvgsToImages(certificatePreview);
+        // Convert SVGs so html2pdf doesn't hide them
+        // convertSvgsToImages(certificatePreview);
         
         const opt = {
             margin:       0.1,
@@ -126,15 +138,17 @@
             }
         };
         
-        // Generate PDF
-        // Temporarily reset transform for PDF generation if needed, but we are capturing the inner element
-        html2pdf().set(opt).from(certificatePreview).save().then(() => {
-            handleDBChecks();
-            setTimeout(() => goto("/prize-info"), 1500);
-        }).catch(err => {
-            console.error('PDF generation failed:', err);
-            alert(`Failed to generate PDF: ${err.message || err}`);
-        });
+        // // Generate PDF
+        // // Temporarily reset transform for PDF generation if needed, but we are capturing the inner element
+        // html2pdf().set(opt).from(certificatePreview).save().then(() => {
+        //     // Play certificate download audio
+        //     playCertificateAudio();
+        //     // if(redirectAfterDownload) setTimeout(() => goto("/prize-info"), 1500);
+        //     goto("/prize-info");
+        // }).catch(err => {
+        //     console.error('PDF generation failed:', err);
+        //     alert(`Failed to generate PDF: ${err.message || err}`);
+        // });
     }
 
     function updateScale() {
@@ -153,6 +167,7 @@
     onMount(() => {
         prepareLogo();
         updateScale();
+        getWinnersData();
         window.addEventListener('resize', updateScale);
         return () => window.removeEventListener('resize', updateScale);
     })

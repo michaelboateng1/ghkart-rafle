@@ -1,12 +1,23 @@
-export async function POST({ request, cookies }) {
-    try {
+import { auth } from '$lib/auth';
+import { db } from '$lib/server/db';
+import { sessions, customers } from '$lib/server/db/schemas/schema.js';
+import { eq, and } from 'drizzle-orm';
 
+export async function POST({request, cookies }) {
+        try {
         const sessionToken = cookies.get("better-auth.session_token");
 
         if (!sessionToken) {
             return new Response(
-                JSON.stringify({ message: "missing token" }),
-                { status: 400 }
+                JSON.stringify({
+                    success: false,
+                    redirectUrl: "/",
+                    error: "Missing session token"
+                }),
+                { 
+                    status: 400,
+                    headers: { 'Content-Type': 'application/json' }
+                }
             );
         }
 
@@ -17,51 +28,110 @@ export async function POST({ request, cookies }) {
 
         if (!sessionRecord.length) {
             return new Response(
-                JSON.stringify({ message: "missing user session" }),
-                { status: 400 }
+                JSON.stringify({
+                    success: false,
+                    redirectUrl: "/",
+                    error: "Expired session."
+                }),
+                { 
+                    status: 400,
+                    headers: { 'Content-Type': 'application/json' }
+                }
             );
         }
 
-        const customerRecord = await db.select()
-            .from(customers)
-            .where(eq(customers.id, sessionRecord[0].customerId))
-            .limit(1);
 
-        if (!customerRecord.length) {
-            return new Response(
-                JSON.stringify({ message: "user not found" }),
-                { status: 400 }
-            );
-        }
+       const updatedData = db.transaction((tx) => {
+                // Fetch customer
+                const [lockedCustomer] = tx.select()
+                    .from(customers)
+                    .where(eq(customers.id, sessionRecord[0].customerId))
+                    .limit(1)
+                    .all()
 
-        const customer = customerRecord[0];
+                    if (!lockedCustomer) {
+                        return {
+                            success: false,
+                            goToGhKart: false,
+                            winPrice: lockedCustomer.winPrice,
+                            priceName: lockedCustomer.priceName,
+                            message: "User not found. Redirecting...",
+                            certificateGenerated: lockedCustomer.certificateGenerated,
+                            redirectUrl: "/",
+                        }
+                    }
+            
+                    if (!lockedCustomer.emailVerified) {
+                        return {
+                            success: false,
+                            goToGhKart: false,
+                            winPrice: lockedCustomer.winPrice,
+                            priceName: lockedCustomer.priceName,
+                            message: "Email not verified. Redirecting...",
+                            certificateGenerated: lockedCustomer.certificateGenerated,
+                            redirectUrl: "/",
+                        }
+                    }
+            
+            
+                    if(!lockedCustomer.winPrice && lockedCustomer.priceName === "null"){
+                        return {
+                            success: false,
+                            goToGhKart: false,
+                            winPrice: lockedCustomer.winPrice,
+                            priceName: lockedCustomer.priceName,
+                            message: "Sorry, you have to spin and win...",
+                            certificateGenerated: lockedCustomer.certificateGenerated,
+                            redirectUrl: "/",
+                        }
+                    }
+                    
+                    if(lockedCustomer.winPrice && lockedCustomer.priceName !== "null" && lockedCustomer.certificateGenerated && lockedCustomer.receivedPrice){
+                        return {
+                            success: false,
+                            goToGhKart: true,
+                            winPrice: lockedCustomer.winPrice,
+                            priceName: lockedCustomer.priceName,
+                            message: "Sorry, you can only win once. Redirecting...",
+                            certificateGenerated: lockedCustomer.certificateGenerated,
+                            redirectUrl: "https://ghkart",
+                        }
+                    }
 
-        // Transaction — safe update
-        db.transaction((tx) => {
-            // Fetch customer
-            const [lockedCustomer] = tx.select()
-                .from(customers)
-                .where(eq(customers.id, customer.id))
-                .limit(1)
-                .all();
+        
+                // Optimistic lock update
+                if(!lockedCustomer.certificateGenerated){
+                    tx.update(customers)
+                        .set({
+                            certificateGenerated: true,
+                            updatedAt: new Date()
+                        })
+                        .where(and(
+                            eq(customers.id, lockedCustomer.id),
+                            eq(customers.certificateGenerated, lockedCustomer.certificateGenerated)
+                        ))
+                        .run();
+                }
 
-            if (!lockedCustomer) return;
+                return {
+                    success: true,
+                    winPrice: lockedCustomer.winPrice,
+                    priceName: lockedCustomer.priceName,
+                    message: `Successfully generated certificate.`,
+                    redirectUrl: "/prize-info",
+                };
+            });
 
-            // If no certificate generated yet → give prize
-            if (lockedCustomer.winPrice && lockedCustomer.priceName && !lockedCustomer.certificateGenerated) {
-                tx.update(customers)
-                    .set({
-                        certificateGenerated: true,
-                        updatedAt: new Date()
-                    })
-                    .where(eq(customers.id, lockedCustomer.id))
-                    .run();
+
+            const customerUpdate = await db.select().from(customers).where(eq(customers.id, sessionRecord[0].customerId));
+
+
+
+            if(!updatedData.success){
+                return new Response(JSON.stringify({...updatedData, certificateGenerated: customerUpdate[0].certificateGenerated}),{status: 400, headers: { 'Content-Type': 'application/json' }});
+            }else{
+                return new Response(JSON.stringify({...updatedData, certificateGenerated: customerUpdate[0].certificateGenerated}),{status: 200, headers: { 'Content-Type': 'application/json' }});
             }
-        })();
-
-        return new Response(JSON.stringify({
-                success: true,
-                certificateGenerated: true}), {status: 200});
 
     } catch (err) {
         console.log(err);

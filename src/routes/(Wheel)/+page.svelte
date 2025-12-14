@@ -1,5 +1,5 @@
 <script>
-	import GhkartLogo from '$lib/assets/id2QTm5KPO_logos.png';
+	import GhkartLogo from '$lib/assets/ghkartchristmaslogo.png';
 
 	import SignUp from './components/SignUp.svelte';
 	import Login from './components/Login.svelte';

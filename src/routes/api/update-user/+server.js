@@ -24,7 +24,7 @@ export async function GET({ cookies }) {
     console.log("increment number of spin", result);
 
 
-    if (result.error) {
+    if (result.message) {
         return new Response(JSON.stringify(result), { status: result.status ?? 400 });
     }
 

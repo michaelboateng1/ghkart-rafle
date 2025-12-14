@@ -82,40 +82,30 @@
 				body: JSON.stringify({ email, otp })
 			};
 
-			const response = await fetch('/api/verify-otp', options);
+			const response = await fetch('/api/admin-email-verification', options);
 
 			const data = await response.json();
 
-			console.log("FINISHED DATABASE OPERATIONS: ", data);
-			console.log(response);
-
-			// Check if user has exceeded spins
-			// if (data.spinsExceeded && data.redirectUrl) {
-			// 		successMessage = data.message || 'You have used all your spins. Redirecting...';
-			// 		// Redirect to external URL after short delay
-			// 		setTimeout(() => {
-			// 			window.location.href = data.redirectUrl;
-			// 		}, 1500);
-			// 	} else {
-					
-			// 	}
-
-			if (response.ok && response.status === 200) {
-				successMessage = 'Email verified successfully!';
-				setTimeout(() => goto('/play-game'), 1500);
-				
-			} else {
-				if(data.message){
-					successMessage = data.message || 'Email verified successfully!';
-				}else if(data.error){
-					errorMessage = data.error || 'Invalid OTP. Please try again.';
+			if (response.ok && data.success) {
+				// Check if user has exceeded spins
+				if (data.spinsExceeded && data.redirectUrl) {
+					successMessage = data.message || 'You have used all your spins. Redirecting...';
+					// Redirect to external URL after short delay
+					setTimeout(() => {
+						window.location.href = data.redirectUrl;
+					}, 1500);
+				} else {
+					successMessage = 'Email verified successfully!';
+					// Redirect to dashboard or next step after short delay
+					setTimeout(() => {
+						goto('/dashboard-admin');
+					}, 1500);
 				}
+			} else {
+				errorMessage = data.error || 'Invalid OTP. Please try again.';
 				// Clear OTP inputs on error
 				otpDigits = ['', '', '', ''];
 				otpInputs[0].focus();
-
-				if(data.redirectUrl && data?.spinsExceeded) setTimeout(() => window.location = data.redirectUrl, 1500);
-				if(data.redirectUrl) setTimeout(() => goto(data.redirectUrl), 1500);
 			}
 		} catch (err) {
 			errorMessage = 'An error occurred. Please try again.';

@@ -39,7 +39,7 @@
                     Congratulations! 🎉
                 </h1>
                 <p class="text-lg sm:text-xl text-green-100 relative">
-                    You've Won a Prize from GhKart XMAS 2025
+                    You've Won a Prize from ghkart XMAS 2025
                 </p>
             </div>
 
@@ -64,7 +64,7 @@
                         <div class="flex-1">
                             <h3 class="text-xl font-bold text-gray-800 mb-2">Download Your Certificate</h3>
                             <p class="text-gray-600 leading-relaxed">
-                                Click the download button to save your winning certificate. This certificate is your proof of winning and is required to claim your prize.
+                                Download your winning certificate. This certificate is your proof of winning and is required to claim your prize.
                             </p>
                         </div>
                     </div>
@@ -72,14 +72,14 @@
                     <!-- Step 2 -->
                     <div class="flex gap-4 sm:gap-6 group hover:bg-teal-50 p-4 rounded-2xl transition-all duration-300">
                         <div class="flex-shrink-0">
-                            <div class="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-teal-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg group-hover:scale-110 transition-transform duration-300">
+                            <div class="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg group-hover:scale-110 transition-transform duration-300">
                                 2
                             </div>
                         </div>
                         <div class="flex-1">
-                            <h3 class="text-xl font-bold text-gray-800 mb-2">Visit GhKart Store</h3>
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">Visit ghkart Office</h3>
                             <p class="text-gray-600 leading-relaxed">
-                                Head over to our main store at <a href="https://ghkart.com" target="_blank" rel="noopener noreferrer" class="text-green-600 font-semibold hover:text-green-700 underline">ghkart.com</a> or visit our physical location in person.
+                                Visit our office at Kentenkrono (KNUST) in person.
                             </p>
                         </div>
                     </div>
@@ -87,14 +87,14 @@
                     <!-- Step 3 -->
                     <div class="flex gap-4 sm:gap-6 group hover:bg-blue-50 p-4 rounded-2xl transition-all duration-300">
                         <div class="flex-shrink-0">
-                            <div class="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg group-hover:scale-110 transition-transform duration-300">
+                            <div class="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg group-hover:scale-110 transition-transform duration-300">
                                 3
                             </div>
                         </div>
                         <div class="flex-1">
                             <h3 class="text-xl font-bold text-gray-800 mb-2">Present Your Certificate</h3>
                             <p class="text-gray-600 leading-relaxed">
-                                Show your downloaded certificate to our staff along with a valid ID. Our team will verify your details and process your prize claim.
+                                Show your downloaded certificate to our staff. Our team will verify your details and process your prize claim.
                             </p>
                         </div>
                     </div>
@@ -102,14 +102,17 @@
                     <!-- Step 4 -->
                     <div class="flex gap-4 sm:gap-6 group hover:bg-purple-50 p-4 rounded-2xl transition-all duration-300">
                         <div class="flex-shrink-0">
-                            <div class="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg group-hover:scale-110 transition-transform duration-300">
+                            <div class="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-orange-500 to-red-600 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg group-hover:scale-110 transition-transform duration-300">
                                 4
                             </div>
                         </div>
                         <div class="flex-1">
                             <h3 class="text-xl font-bold text-gray-800 mb-2">Collect Your Prize!</h3>
                             <p class="text-gray-600 leading-relaxed">
-                                Once verified, you'll receive your prize immediately. Enjoy your new gadget and thank you for participating!
+                                Once verified, you'll receive your prize immediately. Enjoy your new device and thank you for participating!
+                            </p>
+                            <p class="text-gray-600 leading-relaxed">
+                                Head over to our main store at <a href="https://ghkart.com" target="_blank" rel="noopener noreferrer" class="text-green-600 font-semibold hover:text-green-700 underline">ghkart.com</a> for more products.
                             </p>
                         </div>
                     </div>
@@ -127,10 +130,6 @@
                                 <li class="flex items-start gap-2">
                                     <span class="text-orange-600 font-bold">•</span>
                                     <span>Certificate is valid until <strong>December 31, 2025</strong></span>
-                                </li>
-                                <li class="flex items-start gap-2">
-                                    <span class="text-orange-600 font-bold">•</span>
-                                    <span>Bring a valid government-issued ID for verification</span>
                                 </li>
                                 <li class="flex items-start gap-2">
                                     <span class="text-orange-600 font-bold">•</span>
@@ -166,7 +165,7 @@
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
                         </svg>
-                        Visit GhKart Store
+                        Visit ghkart Store
                     </a>
                 </div>
             </div>
@@ -174,7 +173,10 @@
             <!-- Footer -->
             <div class="bg-gray-50 px-6 py-4 text-center border-t border-gray-200">
                 <p class="text-sm text-gray-600">
-                    🎄 Thank you for participating in GhKart XMAS Prize 2025! 🎄
+                    🎄 Thank you for participating in ghkart XMAS Prize 2025! 🎄
+                </p>
+                <p class="text-sm text-gray-600">
+                    🎄 See you in 2026. 🎄
                 </p>
             </div>
         </div>

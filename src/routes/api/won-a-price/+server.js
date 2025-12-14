@@ -23,11 +23,21 @@ export async function POST({ request, cookies }) {
             .limit(1);
 
         if (!sessionRecord.length) {
-            return new Response(
-                JSON.stringify({ message: "missing user session" }),
-                { status: 400 }
-            );
+            if (!customerRecord.length) {
+                return new Response(JSON.stringify({
+                    success: false,
+                    winPrice: customerRecord[0].winPrice,
+                    priceName: customerRecord[0].priceName,
+                    redirectUrl: "/"}), {status: 400});
+            }
         }
+
+       await db.update(customers).set({
+            winPrice: true,
+            priceName: price,
+            updatedAt: new Date()
+        }).where(eq(customers.id, sessionRecord[0].customerId ));
+
 
         const customerRecord = await db.select()
             .from(customers)
@@ -35,42 +45,28 @@ export async function POST({ request, cookies }) {
             .limit(1);
 
         if (!customerRecord.length) {
-            return new Response(
-                JSON.stringify({ message: "user not found" }),
-                { status: 400 }
-            );
+            return new Response(JSON.stringify({
+                success: false,
+                winPrice: customerRecord[0].winPrice,
+                priceName: customerRecord[0].priceName,
+                redirectUrl: "/"}), {status: 400});
         }
 
-        const customer = customerRecord[0];
+        cookies.set("ghkart.prizeWinner", JSON.stringify(customerRecord), {
+            path: "/",
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production" || process.env.NODE_ENV === "prod",
+            sameSite: "lax"
+        });
 
-        // Transaction — safe update
-        db.transaction((tx) => {
-            // Fetch customer
-            const [lockedCustomer] = tx.select()
-                .from(customers)
-                .where(eq(customers.id, customer.id))
-                .limit(1)
-                .all();
 
-            if (!lockedCustomer) return;
-
-            // If no prize yet → give prize
-            if (!lockedCustomer.winPrice) {
-                tx.update(customers)
-                    .set({
-                        winPrice: true,
-                        priceName: price,
-                        updatedAt: new Date()
-                    })
-                    .where(eq(customers.id, lockedCustomer.id))
-                    .run();
-            }
-        })();
 
         return new Response(JSON.stringify({
                 success: true,
-                won: true,
-                redirectUrl: "/preview-certificate"}), {status: 200});
+                winPrice: customerRecord[0].winPrice,
+                priceName: customerRecord[0].priceName,
+                message: "",
+                redirectUrl: ""}), {status: 200});
 
     } catch (err) {
         console.log(err);

@@ -16,7 +16,7 @@
 >
     <!-- Logo -->
     <div class="flex h-16 items-center justify-center border-b border-gray-100">
-        <img src={GhkartLogo} alt="Logo" class="h-8 w-auto" />
+        <img src={GhkartLogo} alt="Logo" class="h-full w-full" />
     </div>
 
     <!-- Nav Links -->

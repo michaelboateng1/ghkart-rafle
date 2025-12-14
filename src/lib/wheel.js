@@ -1,4 +1,6 @@
 import { playAudio } from './audio/wheelAudio.js';
+import { playAudio as playWinAudio } from './audio/winAudio.js';
+import { playAudio as playLoseAudio } from './audio/loseAudio.js';
 
 export function drawWheel(canvasWidth, canvasHeight, ctx, sections, rotation, colors, labels) {
 	const centerX = canvasWidth / 2;
@@ -235,10 +237,14 @@ export function spin({
 			const selectedSection = getSectionAtTop(newRotation, sections);
 
 			if (labels[selectedSection] === 'Try Again') {
+				// Play lose audio
+				playLoseAudio();
 				onUpdate({ result: `😭 Please ${labels[selectedSection]}! 😭`, selectedSection });
 				return;
 			}
 
+			// Play win audio
+			playWinAudio();
 			onUpdate({ result: `😱🥳 You Won A ${labels[selectedSection]}! 🎊🎉`, selectedSection });
 		}
 	}

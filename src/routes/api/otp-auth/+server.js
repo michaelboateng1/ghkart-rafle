@@ -87,7 +87,7 @@ export async function POST({ request, cookies }) {
 		return new Response(
 			JSON.stringify({
 				success: true,
-				message: 'OTP sent to your email',
+				message: 'We sent 4 digit code to your email',
 				email: email
 			}),
 			{
@@ -101,10 +101,26 @@ export async function POST({ request, cookies }) {
 		console.error('Error during signup:', error);
 		console.error('Error stack:', error.stack);
 
+		if(error.message.includes('UNIQUE constraint failed:')) {
+			const getColumn = error.message.split(".");
+			return new Response(
+				JSON.stringify({
+					success: false,
+					error: `${getColumn[1].split("_").join(" ")} already exists`
+				}),
+				{
+					status: 409,
+					headers: {
+						'Content-Type': 'application/json'
+					}
+				}
+			);
+		}
+
 		return new Response(
 			JSON.stringify({
 				success: false,
-				error: error.message || 'Failed to create account'
+				error: error.message || 'Failed to create account or User already exists'
 			}),
 			{
 				status: 500,

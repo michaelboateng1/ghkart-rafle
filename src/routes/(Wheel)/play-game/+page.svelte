@@ -12,6 +12,8 @@
 	import { onMount } from 'svelte';
 	import { drawWheel, updateSelectorColor, spin } from '$lib/wheel';
 	import { playAudio as playButtonClickAudio } from '$lib/audio/buttonClickAudio.js';
+	import { playAudio as playWinAudio } from '$lib/audio/winAudio.js';
+	import { playAudio as playLoseAudio } from '$lib/audio/loseAudio.js';
 
 	import WheelParticle from '$lib/wheelBackgroundAnimation';
 
@@ -107,6 +109,23 @@
 	];
 	
 	let canvas;
+	// let scalingContainer;
+	// let scale = 1;
+	// const baseCanvasWidth = 400;
+	// const baseCanvasHeight = 400;
+
+	// function updateScale() {
+	// 	if (!scalingContainer) return;
+	// 	const parentWidth = scalingContainer.parentElement.clientWidth;
+	// 	// baseCanvasWidth is the width of the canvas we draw into. Use a small buffer.
+	// 	const baseWidth = baseCanvasWidth + 40; // include some padding buffer
+
+	// 	if (parentWidth < baseWidth) {
+	// 		scale = parentWidth / baseWidth;
+	// 	} else {
+	// 		scale = 1;
+	// 	}
+	// }
 	let selector;
 	let spinBtn;
 	let resultDisplay;
@@ -220,6 +239,10 @@
 
 	onMount(() => {
 
+		// compute initial scale and keep it updated on window resize
+		// updateScale();
+		// window.addEventListener('resize', updateScale);
+
 		canvas2.width = window.innerWidth;
 		canvas2.height = window.innerHeight;
 		const ctx2 = canvas2.getContext('2d');
@@ -254,9 +277,11 @@
 
 		animateBackground();
 
-		const ctx = canvas.getContext('2d');
-		canvas.width = 400;
-		canvas.height = 400;
+			const ctx = canvas.getContext('2d');
+			// Use base canvas size; the canvas is placed inside a scaled wrapper so it stays crisp and
+			// proportional across devices.
+			// canvas.width = baseCanvasWidth;
+			// canvas.height = baseCanvasHeight;
 		const canvasWidth = canvas.width;
 		const canvasHeight = canvas.height;
 
@@ -275,7 +300,12 @@
 
 			hundleParticles();
 			animateBackground();
-		});
+
+		// // cleanup for the resize listener we added above
+		// return () => {
+		// 	window.removeEventListener('resize', updateScale);
+		// };
+	});
 
 		spinBtn.onclick = async () => {
 		// Play button click sound
@@ -314,8 +344,21 @@
 								tryAgain = false;
 							}
 
+							// Set confetti and certificate visibility
 							showConfetti = labels[updates.selectedSection] !== "Try Again" ? true : false;
 							showCertificateBtn = labels[updates.selectedSection] !== "Try Again" ? true : false;
+
+							// Play audio according to outcome — only play win audio when confetti is shown
+							if (labels[updates.selectedSection] === 'Try Again') {
+								// Play lose audio briefly so it doesn't annoy
+								playLoseAudio?.(1200);
+							} else {
+								if (showConfetti) {
+									// play celebratory sound when confetti is being shown
+									playWinAudio?.();
+								}
+							}
+
 							// Call wonAPrice when user wins a prize (not "Try Again")
 							wonAPrice(labels[updates.selectedSection]);
 							// console.log("User won and redirecting 6")
@@ -358,26 +401,33 @@
 	});
 </script>
 
-
 <main class="m-0 p-5 flex flex-col items-center justify-center min-h-screen">
 	{#if showConfetti}
-	<canvas class="block absolute top-0 left-0 w-full h-full z-40" bind:this={canvas3}></canvas>
+		<canvas class="block absolute top-0 left-0 w-full h-full z-40" bind:this={canvas3}></canvas>
 	{/if}
 	<canvas class="block absolute top-0 left-0 w-full h-full" bind:this={canvas2}></canvas>
 	<div class="relative mt-5" id="wheelContainer">
-		<div
-			class="absolute -top-5 left-[50%] transform translate-x-[-50%] w-0 h-0"
-			bind:this={selector}
-			id="selector"
-		></div>
-		<div>
-			<canvas bind:this={canvas} id="wheel" class="block z-20" width={400} height={400}></canvas>
+		<!-- Scaled container (keeps canvas at a fixed base size but scales it to fit available width) -->
+		<div class="w-full flex justify-center overflow-hidden">
+			<div class="transform -scale-80 sm:scale-100 relative">
+				<div
+					class="absolute -top-5 left-[50%] transform translate-x-[-50%] w-0 h-0"
+					bind:this={selector}
+					id="selector"
+				></div>
+				<div>
+					<canvas bind:this={canvas} id="wheel" class="block z-20" width="400" height="400"
+					></canvas>
+				</div>
+			</div>
 		</div>
 	</div>
 	{#if !savedPrice}
 		<button bind:this={spinBtn} class="py-3 px-10 mt-8 z-20" id="spinBtn">SPIN THE WHEEL</button>
 	{:else if savedPrice && !showModal}
-		<button onclick={() => goto("/preview-certificate")} class="py-3 px-10 mt-8 z-20" id="spinBtn">Claim certificate for your prize</button>
+		<button onclick={() => goto('/preview-certificate')} class="py-3 px-10 mt-8 z-20" id="spinBtn"
+			>Claim certificate for your prize</button
+		>
 	{/if}
 </main>
 
@@ -393,7 +443,7 @@
 		<div
 			class="bg-white modal-content-bg rounded-lg drop-shadow-xl w-full sm:w-[800px] sm:h-[400px]"
 		>
-			<div class="flex justify-end items-center py-5 sm:px-6">
+			<div class="flex justify-end items-center py-2 sm:px-6">
 				<button onclick={() => closeModal({ target: { id: 'modal' } })}><CloseIcon /></button>
 			</div>
 			<div class="text-center">
@@ -407,20 +457,24 @@
 					<div class="w-full flex items-center justify-center py-2">
 						<div class="h-auto w-[130px] sm:w-[200px]">
 							<img
-									src={selectedImage}
-									width="200"
-									height="200"
-									class="w-full h-full object-cover"
-									alt=""
-								/>
-							</div>
+								src={selectedImage}
+								width="200"
+								height="200"
+								class="w-full h-full object-cover"
+								alt=""
+							/>
 						</div>
-						{#if !tryAgain && showCertificateBtn}
-							<button onclick={() => goto("/preview-certificate")} class="py-2 px-10 text-sm sm:text-normal" id="spinBtn">Claim certificate for your prize</button>
-						{/if}
-						{#if tryAgain && spinLeftMessage}
-							<p class="py-2 text-xl text-white px-10 mt-8">{spinLeftMessage}</p>
-						{/if}
+					</div>
+					{#if !tryAgain && showCertificateBtn}
+						<button
+							onclick={() => goto('/preview-certificate')}
+							class="py-2 px-10 text-sm sm:text-normal"
+							id="spinBtn">Claim certificate for your prize</button
+						>
+					{/if}
+					{#if tryAgain && spinLeftMessage}
+						<p class="py-2 text-xl text-white px-10 mt-8">{spinLeftMessage}</p>
+					{/if}
 				{/if}
 			</div>
 		</div>
@@ -463,7 +517,7 @@
 	#selector {
 		border-left: 20px solid transparent;
 		border-right: 20px solid transparent;
-		border-top: 40px solid #ff0000;
+		border-top: 40px solid #fff;
 		filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.3));
 		transition: border-top-color 0.1s;
 	}
@@ -505,28 +559,3 @@
         min-height: 30px;
     } */
 </style>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

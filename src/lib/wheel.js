@@ -243,8 +243,7 @@ export function spin({
 				return;
 			}
 
-			// Play win audio
-			playWinAudio();
+			// Don't play the win audio here — the page controls whether confetti (and audio) should show.
 			onUpdate({ result: `😱🥳 You Won A ${labels[selectedSection]}! 🎊🎉`, selectedSection });
 		}
 	}

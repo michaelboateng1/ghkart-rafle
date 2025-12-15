@@ -7,12 +7,6 @@
 	import { onMount } from 'svelte';
 	import Particle from '$lib/backgroundAnimation';
 
-	let formState = $state('signup');
-
-	function hundleFormState() {
-		formState = formState === 'signup' ? 'login' : 'signup';
-	}
-
 	const backgroundParticles = [];
 
 	let canvas;
@@ -58,16 +52,6 @@
 				<img src={GhkartLogo} alt="GH-kart Logo" class="w-full h-full object-cover" />
 			</div>
 		</div>
-		{#if formState === 'signup'}
-			<SignUp />
-		{:else if formState === 'login'}
-			<Login />
-		{/if}
-		<button
-			onclick={() => hundleFormState()}
-			class="text-green-400 text-sm underline mt-3 cursor-pointer hover:text-orange-400 active:text-green-400 transition-colors duration-300"
-			type="button"
-			>{formState === 'signup' ? 'Already been here? login' : 'New here? signup'}</button
-		>
+		<SignUp />
 	</main>
 </div>

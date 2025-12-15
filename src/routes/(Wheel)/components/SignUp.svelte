@@ -47,7 +47,7 @@
 				locationInput.value = '';
 			} else {
 				console.log(data.error);
-				errorMessage = 'Failed to send OTP';
+				errorMessage = data.error || 'Failed to send OTP';
 			}
 		} catch (err) {
 			errorMessage = 'An error occurred';

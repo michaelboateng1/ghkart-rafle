@@ -22,7 +22,7 @@ async function initAudio() {
 }
 
 
-async function playAudio() {
+async function playAudio(maxDurationMs, fadeMs = 300) {
     // Initialize audio if not already done
     await initAudio();
 
@@ -34,8 +34,32 @@ async function playAudio() {
     // Create a new buffer source for playback
     const source = audioContext.createBufferSource();
     source.buffer = audioBuffer;
-    source.connect(audioContext.destination);
+
+    // Create a gain node for fade control
+    const gainNode = audioContext.createGain();
+    gainNode.gain.setValueAtTime(1, audioContext.currentTime);
+
+    source.connect(gainNode);
+    gainNode.connect(audioContext.destination);
     source.start(0);
+
+    // Stop after maxDurationMs if provided (in ms) with a fade-out
+    if (maxDurationMs && typeof maxDurationMs === 'number' && maxDurationMs > 0) {
+        try {
+            const stopTime = audioContext.currentTime + maxDurationMs / 1000;
+            const fadeDuration = Math.min(fadeMs / 1000, Math.max(0, stopTime - audioContext.currentTime));
+            const fadeStart = stopTime - fadeDuration;
+
+            gainNode.gain.setValueAtTime(1, Math.max(audioContext.currentTime, fadeStart));
+            gainNode.gain.linearRampToValueAtTime(0.0001, stopTime);
+
+            source.stop(stopTime + 0.01);
+        } catch (e) {
+            // ignore stop errors
+        }
+    }
+
+    return { source, gainNode };
 }
 
 

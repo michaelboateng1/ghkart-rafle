@@ -15,7 +15,7 @@
         : '-translate-x-full'}"
 >
     <!-- Logo -->
-    <div class="flex h-16 items-center justify-center border-b border-gray-100">
+    <div class="flex h-16 px-5 items-center justify-center border-b border-gray-100">
         <img src={GhkartLogo} alt="Logo" class="h-full w-full" />
     </div>
 

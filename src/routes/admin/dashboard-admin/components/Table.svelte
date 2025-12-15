@@ -1,4 +1,6 @@
 <script>
+    import EditModal from "./EditModal.svelte";
+
     // Props
     let { customers } = $props();
     
@@ -15,6 +17,18 @@
                 user.phoneNumber?.includes(q)
         );
     });
+
+    // State
+	let isEditModalOpen = $state(false);
+
+    function openEditModal(user) {
+        console.log(user);
+        isEditModalOpen = true;
+    }
+
+    function closeEditModal() {
+        isEditModalOpen = false;
+    }
 
 </script>
 
@@ -145,3 +159,6 @@
         </table>
     </div>
 </div>
+
+<EditModal {isEditModalOpen} />
+

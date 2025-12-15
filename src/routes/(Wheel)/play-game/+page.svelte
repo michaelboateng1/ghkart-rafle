@@ -83,6 +83,12 @@
 		}
 
 		animate();
+
+		window.addEventListener("resize", () =>{
+			canvas3.width = window.innerWidth;
+			canvas3.height = window.innerHeight;
+			animate();
+		});
 	}
 
 	
@@ -149,22 +155,6 @@
 		}
 	}
 
-	// let wheelSize = 400;
-
-	// function updateWheelSize() {
-	// 	const w = window.innerWidth;
-
-	// 	if (w < 450) {
-	// 		wheelSize = 260;   // small phones
-	// 	} else if (w < 768) {
-	// 		wheelSize = 320;   // large phones / small tablets
-	// 	} else if (w < 1024) {
-	// 		wheelSize = 360;   // tablets
-	// 	} else {
-	// 		wheelSize = 400;   // desktop
-	// 	}
-	// }
-
 
 	const wonAPrice = async (price) => {
 		try{
@@ -225,8 +215,11 @@
 		}
 	}
 
+	// let windowSize;
+
 
 	onMount(() => {
+
 		canvas2.width = window.innerWidth;
 		canvas2.height = window.innerHeight;
 		const ctx2 = canvas2.getContext('2d');
@@ -262,6 +255,8 @@
 		animateBackground();
 
 		const ctx = canvas.getContext('2d');
+		canvas.width = 400;
+		canvas.height = 400;
 		const canvasWidth = canvas.width;
 		const canvasHeight = canvas.height;
 
@@ -273,6 +268,14 @@
 		// Start Drawing
 		drawWheel(canvasWidth, canvasHeight, ctx, sections, rotation, colors, labels);
 		updateSelectorColor(selector, colors, rotation, sections);
+
+		window.addEventListener("resize", () =>{
+			canvas2.width = window.innerWidth;
+			canvas2.height = window.innerHeight;
+
+			hundleParticles();
+			animateBackground();
+		});
 
 		spinBtn.onclick = async () => {
 		// Play button click sound
@@ -367,12 +370,14 @@
 			bind:this={selector}
 			id="selector"
 		></div>
-		<canvas bind:this={canvas} id="wheel" class="block z-20" width={400} height={400}></canvas>
+		<div>
+			<canvas bind:this={canvas} id="wheel" class="block z-20" width={400} height={400}></canvas>
+		</div>
 	</div>
 	{#if !savedPrice}
 		<button bind:this={spinBtn} class="py-3 px-10 mt-8 z-20" id="spinBtn">SPIN THE WHEEL</button>
 	{:else if savedPrice && !showModal}
-		<button onclick={() => goto("/preview-certificate")} class="py-2 px-10" id="spinBtn">Claim certificate for your prize</button>
+		<button onclick={() => goto("/preview-certificate")} class="py-3 px-10 mt-8 z-20" id="spinBtn">Claim certificate for your prize</button>
 	{/if}
 </main>
 
@@ -400,7 +405,7 @@
 				{:else if !noSpinLeft && showModal}
 					<p class="sm:text-3xl font-bold text-white">{resultDisplay}</p>
 					<div class="w-full flex items-center justify-center py-2">
-						<div class="h-auto w-[200px]">
+						<div class="h-auto w-[130px] sm:w-[200px]">
 							<img
 									src={selectedImage}
 									width="200"
@@ -411,7 +416,7 @@
 							</div>
 						</div>
 						{#if !tryAgain && showCertificateBtn}
-							<button onclick={() => goto("/preview-certificate")} class="py-2 px-10" id="spinBtn">Claim certificate for your prize</button>
+							<button onclick={() => goto("/preview-certificate")} class="py-2 px-10 text-sm sm:text-normal" id="spinBtn">Claim certificate for your prize</button>
 						{/if}
 						{#if tryAgain && spinLeftMessage}
 							<p class="py-2 text-xl text-white px-10 mt-8">{spinLeftMessage}</p>

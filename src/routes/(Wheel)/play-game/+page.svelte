@@ -360,11 +360,11 @@
 							}
 
 							// Call wonAPrice when user wins a prize (not "Try Again")
-							wonAPrice(labels[updates.selectedSection]);
 							// console.log("User won and redirecting 6")
-							// if(labels[updates.selectedSection] !== "Try Again" && savedPrice){
-							// 	console.log("User won and redirecting 7")
-							// }
+							if(labels[updates.selectedSection] !== "Try Again" && savedPrice){
+								wonAPrice(labels[updates.selectedSection]);
+								console.log("User won and redirecting 7")
+							}
 
 							console.log("😱🥳🎊🎉: ", savedPrice);
 						}

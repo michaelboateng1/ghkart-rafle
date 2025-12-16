@@ -221,7 +221,7 @@
 <div class="w-full flex flex-col items-center justify-center min-h-screen bg-[#f9fafb] p-4">
 	<button
 		class="mb-8 px-8 py-3 bg-gradient-to-br from-green-600 to-teal-800 text-white font-bold text-lg rounded-full shadow-lg hover:-translate-y-0.5 hover:shadow-xl transition-all active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed uppercase tracking-wide flex items-center justify-center"
-		on:click={downloadCertificate}
+		onclick={downloadCertificate}
 		disabled={isDownloading}
 		aria-busy={isDownloading}
 	>

@@ -251,4 +251,4 @@
 	</div>
 </main>
 
-<EditModal {isEditModalOpen} {selectedUser} onclose={closeEditModal} />
+<EditModal {isEditModalOpen} {selectedUser} {closeEditModal} />

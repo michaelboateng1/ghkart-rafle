@@ -1,15 +1,8 @@
 <script>
 	import { enhance } from '$app/forms';
 	import { fade, fly } from 'svelte/transition';
-	import { createEventDispatcher } from 'svelte';
 
-	const { isEditModalOpen, selectedUser = null } = $props();
-
-	const dispatch = createEventDispatcher();
-
-	function closeEditModal() {
-		dispatch('close');
-	}
+	const { isEditModalOpen, selectedUser = null, closeEditModal } = $props();
 
 	// Toast state
 	let toast = $state({ show: false, message: '', type: 'error' });
@@ -162,7 +155,7 @@
 							>
 							<button
 								type="button"
-								on:click={closeEditModal}
+								onclick={() => closeEditModal()}
 								class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
 								>Cancel</button
 							>

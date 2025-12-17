@@ -2,7 +2,7 @@ import { db } from "$lib/server/db";
 import { customers } from "$lib/server/db/schemas/schema.js";
 import { eq, and } from "drizzle-orm";
 
-export function incrementSpin(customerId, maxSpins = 3) {
+export function incrementSpin(customerId, maxSpins = 100) {
     return db.transaction((tx) => {
         // Fetch customer
         const [lockedCustomer] = tx.select()

@@ -7,7 +7,11 @@ export async function GET({ cookies }) {
     const sessionToken = cookies.get("better-auth.session_token");
 
     if (!sessionToken) {
-        return new Response(JSON.stringify({ message: "missing token" }), { status: 400 });
+        return new Response(JSON.stringify({
+                success: false,
+                message: "Missing session token. Redirecting...",
+                redirectUrl: "/",
+            }), { status: 400 });
     }
 
     const [sessionRecord] = await db.select()
@@ -16,7 +20,11 @@ export async function GET({ cookies }) {
         .limit(1);
 
     if (!sessionRecord) {
-        return new Response(JSON.stringify({ message: "missing session" }), { status: 400 });
+        return new Response(JSON.stringify({
+                success: false,
+                message: "Missing session. Redirecting...",
+                redirectUrl: "/",
+            }), { status: 400 });
     }
 
     // Call sync transaction safely

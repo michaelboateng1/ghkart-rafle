@@ -2,6 +2,7 @@
 	import CloseIcon from './icons/closeIcon.svelte';
 
 	import {goto} from "$app/navigation";
+	import {fly} from "svelte/transition";
 
 	import keyboradImage from '$lib/assets/images/Adobe Express - file (1).png';
 	import batteryImage from '$lib/assets/images/Adobe Express - file (2).png';
@@ -222,10 +223,17 @@
 			if(req.ok && req.status === 200){
 				return data
 			}else{
-				console.log("DONE WITH DATABASE OPERATIONS: ", 	data);
+				console.log("DONE WITH DATABASE OPERATIONS: ", data);
 				console.log("Request: ", req);
 				redirectMessage = data.message
-				setTimeout(() => window.location = data.redirectUrl, 3000);
+				// Only navigate if the API returned a valid redirectUrl. Avoid setting
+				// window.location to `undefined` which causes the browser to request
+				// `/undefined` and produce a 404 on the server.
+				if (data && data.redirectUrl) {
+					setTimeout(() => (window.location = data.redirectUrl), 3000);
+				} else {
+					console.warn('No redirectUrl returned from update-user API; not navigating. Message:', data && data.message);
+				}
 			}
 
 		}
@@ -360,10 +368,13 @@
 							}
 
 							// Call wonAPrice when user wins a prize (not "Try Again")
-							// console.log("User won and redirecting 6")
-							if(labels[updates.selectedSection] !== "Try Again" && savedPrice){
+							// Previously this only fired when `savedPrice` was true which prevented
+							// the server cookie from being set for the current winner. Flip the
+							// condition so we call the API when the user wins and the prize hasn't
+							// already been saved.
+							if (labels[updates.selectedSection] !== "Try Again" && !savedPrice) {
 								wonAPrice(labels[updates.selectedSection]);
-								console.log("User won and redirecting 7")
+								console.log("User won and redirecting 7");
 							}
 
 							console.log("😱🥳🎊🎉: ", savedPrice);
@@ -441,6 +452,7 @@
 		class="modal-bg fixed top-0 left-0 w-full h-screen flex items-center justify-center z-30"
 	>
 		<div
+			transition:fly={{ y: 20, duration: 200 }}
 			class="bg-white modal-content-bg rounded-lg drop-shadow-xl w-full sm:w-[800px] sm:h-[400px]"
 		>
 			<div class="flex justify-end items-center py-2 sm:px-6">

@@ -239,12 +239,12 @@ export function spin({
 			if (labels[selectedSection] === 'Try Again') {
 				// Play lose audio
 				playLoseAudio();
-				onUpdate({ result: `😭 Please ${labels[selectedSection]}! 😭`, selectedSection });
+				onUpdate({ result: `Please ${labels[selectedSection]}!`, selectedSection });
 				return;
 			}
 
 			// Don't play the win audio here — the page controls whether confetti (and audio) should show.
-			onUpdate({ result: `😱🥳 You Won A ${labels[selectedSection]}! 🎊🎉`, selectedSection });
+			onUpdate({ result: `You Won A ${labels[selectedSection]}!`, selectedSection });
 		}
 	}
 

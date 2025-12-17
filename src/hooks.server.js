@@ -63,12 +63,12 @@ async function handleEmailVerificationPath({ event, resolve }) {
 			
 			if (customerRecord[0].numberOfSpins >= 3) {
 				console.log("YOU'VE SPIN MORE THAN 3")
-				throw redirect(302, "https://ghkart.com");
+				throw redirect(301, "https://ghkart.com");
 			}
 
 			if (customerRecord[0].winPrice && customerRecord[0].priceName !== "null" && customerRecord[0].certificateGenerated && customerRecord[0].receivedPrice) {
 				console.log("YOU'VE ALREADY GOTTON YOUR PTIZE, WHAT DO YOU WANT");
-				throw redirect(302, "https://ghkart.com");
+				throw redirect(301, "https://ghkart.com");
 			}
 
 			if(customerRecord[0].winPrice && customerRecord[0].priceName !== "null"){
@@ -195,76 +195,76 @@ async function handleEmailVerificationPath({ event, resolve }) {
 	}
 }
 
-// async function handleCertificatePath({ event, resolve }) {
-// 	try {
-// 		const { cookies, url } = event;
+async function handleCertificatePath({ event, resolve }) {
+	try {
+		const { cookies, url } = event;
 
-// 		const sessionToken = cookies.get("better-auth.session_token");
-// 		console.log("Session Token:", sessionToken);
+		const sessionToken = cookies.get("better-auth.session_token");
+		console.log("Session Token:", sessionToken);
 
-// 		// Pages that require authentication
-// 		if (url.pathname === "/preview-certificate") {
+		// Pages that require authentication
+		if (url.pathname === "/preview-certificate") {
 
-// 			if (!sessionToken) {
-// 				throw redirect(302, "/");
-// 			}
+			if (!sessionToken) {
+				throw redirect(302, "/");
+			}
 
-// 			const sessionRecord = await db
-// 				.select()
-// 				.from(sessions)
-// 				.where(eq(sessions.token, sessionToken))
-// 				.limit(1);
+			const sessionRecord = await db
+				.select()
+				.from(sessions)
+				.where(eq(sessions.token, sessionToken))
+				.limit(1);
 
-// 			if (!sessionRecord.length) {
-// 				cookies.delete("better-auth.session_token");
-// 				throw redirect(302, "/");
-// 			}
+			if (!sessionRecord.length) {
+				cookies.delete("better-auth.session_token");
+				throw redirect(302, "/");
+			}
 
-// 			// Check expiration
-// 			if (sessionRecord[0].expiresAt < Date.now()) {
-// 				await db.delete(sessions).where(eq(sessions.id, sessionRecord[0].id));
-// 				cookies.delete("better-auth.session_token");
-// 				throw redirect(302, "/");
-// 			}
+			// Check expiration
+			if (sessionRecord[0].expiresAt < Date.now()) {
+				await db.delete(sessions).where(eq(sessions.id, sessionRecord[0].id));
+				cookies.delete("better-auth.session_token");
+				throw redirect(302, "/");
+			}
 
-// 			const customerRecord = await db
-// 				.select()
-// 				.from(customers)
-// 				.where(eq(customers.id, sessionRecord[0].customerId))
-// 				.limit(1);
+			const customerRecord = await db
+				.select()
+				.from(customers)
+				.where(eq(customers.id, sessionRecord[0].customerId))
+				.limit(1);
 
-// 			if (!customerRecord.length) {
-// 				throw redirect(302, "/");
-// 			}
+			if (!customerRecord.length) {
+				throw redirect(302, "/");
+			}
 
-// 			if (!customerRecord[0].emailVerified) {
-// 				throw redirect(302, "/");
-// 			}
+			if (!customerRecord[0].emailVerified) {
+				throw redirect(302, "/");
+			}
 
-// 			if (!customerRecord[0].winPrice && customerRecord[0].numberOfSpins >= 3) {
-// 				throw redirect(302, "https://ghkart.com");
-// 			}
+			if (!customerRecord[0].winPrice && customerRecord[0].numberOfSpins >= 3) {
+				throw redirect(302, "https://ghkart.com");
+			}
 
-// 			if(!customerRecord[0].winPrice && customerRecord[0].numberOfSpins < 3){
-// 				throw redirect(302, "/play-game");
-// 			}
+			if(!customerRecord[0].winPrice && customerRecord[0].numberOfSpins < 3){
+				throw redirect(302, "/play-game");
+			}
 
-// 			if (customerRecord[0].winPrice && customerRecord[0].certificateGenerated && !customerRecord[0].receivedPrice) {
-// 				throw redirect(302, "/price-info");
-// 			}
-// 		}
+			if (customerRecord[0].winPrice && customerRecord[0].certificateGenerated && !customerRecord[0].receivedPrice) {
+				throw redirect(302, "/price-info");
+			}
+		}
 
-// 		return resolve(event);
+		return resolve(event);
 
-// 	} catch (err) {
-// 		console.log("Middleware Error:", err);
-// 		throw err; // Re-throw to not swallow redirects
-// 	}
-// }
+	} catch (err) {
+		console.log("Middleware Error:", err);
+		throw err; // Re-throw to not swallow redirects
+	}
+}
 
 
 async function svelteKit({ event, resolve }) {
 	return svelteKitHandler({ event, resolve, auth, building });
 }
 
-export const handle = sequence( handleEmailVerificationPath, svelteKit);
+export const handle = sequence( handleEmailVerificationPath, handleCertificatePath, svelteKit);

@@ -2,7 +2,7 @@ import { db } from "$lib/server/db";
 import { customers } from "$lib/server/db/schemas/schema.js";
 import { eq, and } from "drizzle-orm";
 
-export function incrementSpin(customerId, maxSpins = 100) {
+export function incrementSpin(customerId, maxSpins = 10) {
     return db.transaction((tx) => {
         // Fetch customer
         const [lockedCustomer] = tx.select()
@@ -20,6 +20,18 @@ export function incrementSpin(customerId, maxSpins = 100) {
             };
         }
 
+        if (lockedCustomer.winPrice && lockedCustomer.priceName !== "null" && lockedCustomer.certificateGenerated && !lockedCustomer.receivedPrice) {
+            return {
+                success: false,
+                winPrice: lockedCustomer.winPrice,
+                priceName: lockedCustomer.priceName,
+                message: "You've used all your spins. Redirecting...",
+                remainingSpins: 0,
+                redirectUrl: "/prize-info",
+                status: 302
+            }
+		}
+
         if (lockedCustomer.numberOfSpins >= maxSpins) {
             
             return {
@@ -29,7 +41,7 @@ export function incrementSpin(customerId, maxSpins = 100) {
                 message: "You've used all your spins. Redirecting...",
                 remainingSpins: 0,
                 redirectUrl: "https://ghkart",
-                status: 302
+                status: 301
             }
         }
 

@@ -36,5 +36,7 @@ export async function GET({ cookies }) {
         return new Response(JSON.stringify(result), { status: result.status ?? 400 });
     }
 
+    // return new Response("Hollo World", {status: 200})
+
     return new Response(JSON.stringify(result), { status: 200 });
 }

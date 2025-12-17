@@ -217,8 +217,10 @@
 					"Content-Type": "application/json"
 				}
 			}
-			const req = await fetch("/api/update-user", options);
+			const req = await fetch("/api/update-user-spin", options);
 			const data = await req.json();
+
+			console.log(data);
 
 			if(req.ok && req.status === 200){
 				return data
@@ -226,9 +228,7 @@
 				console.log("DONE WITH DATABASE OPERATIONS: ", data);
 				console.log("Request: ", req);
 				redirectMessage = data.message
-				// Only navigate if the API returned a valid redirectUrl. Avoid setting
-				// window.location to `undefined` which causes the browser to request
-				// `/undefined` and produce a 404 on the server.
+				
 				if (data && data.redirectUrl) {
 					setTimeout(() => (window.location = data.redirectUrl), 3000);
 				} else {

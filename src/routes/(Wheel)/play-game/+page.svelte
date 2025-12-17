@@ -90,7 +90,11 @@
 		window.addEventListener("resize", () =>{
 			canvas3.width = window.innerWidth;
 			canvas3.height = window.innerHeight;
-			animate();
+			
+			confetti.forEach((piece) => {
+				piece.canvasWidth = canvas3.width;
+				piece.canvasHeight = canvas3.height;
+			});
 		});
 	}
 
@@ -110,23 +114,23 @@
 	];
 	
 	let canvas;
-	// let scalingContainer;
-	// let scale = 1;
-	// const baseCanvasWidth = 400;
+	let scalingContainer;
+	let scale = 1;
+	const baseCanvasWidth = 400;
 	// const baseCanvasHeight = 400;
 
-	// function updateScale() {
-	// 	if (!scalingContainer) return;
-	// 	const parentWidth = scalingContainer.parentElement.clientWidth;
-	// 	// baseCanvasWidth is the width of the canvas we draw into. Use a small buffer.
-	// 	const baseWidth = baseCanvasWidth + 40; // include some padding buffer
+	function updateScale() {
+		if (!scalingContainer) return;
+		const parentWidth = window.innerWidth;
+		// baseCanvasWidth is the width of the canvas we draw into. Use a small buffer.
+		const baseWidth = baseCanvasWidth + 40; // include some padding buffer
 
-	// 	if (parentWidth < baseWidth) {
-	// 		scale = parentWidth / baseWidth;
-	// 	} else {
-	// 		scale = 1;
-	// 	}
-	// }
+		if (parentWidth < baseWidth) {
+			scale = parentWidth / baseWidth;
+		} else {
+			scale = 1;
+		}
+	}
 	let selector;
 	let spinBtn;
 	let resultDisplay;
@@ -148,6 +152,7 @@
 	let animationId;
 
 	const sections = 8;
+	const sectionsCount = sections;
 	const colors = [
 		'#FF5252',
 		'#FF9800',
@@ -248,7 +253,7 @@
 	onMount(() => {
 
 		// compute initial scale and keep it updated on window resize
-		// updateScale();
+		updateScale();
 		// window.addEventListener('resize', updateScale);
 
 		canvas2.width = window.innerWidth;
@@ -285,7 +290,7 @@
 
 		animateBackground();
 
-			const ctx = canvas.getContext('2d');
+		const ctx = canvas.getContext('2d');
 			// Use base canvas size; the canvas is placed inside a scaled wrapper so it stays crisp and
 			// proportional across devices.
 			// canvas.width = baseCanvasWidth;
@@ -299,20 +304,19 @@
 		console.log(ctx);
 
 		// Start Drawing
-		drawWheel(canvasWidth, canvasHeight, ctx, sections, rotation, colors, labels);
-		updateSelectorColor(selector, colors, rotation, sections);
+		drawWheel(canvasWidth, canvasHeight, ctx, sectionsCount, rotation, colors, labels);
+		updateSelectorColor(selector, colors, rotation, sectionsCount);
 
 		window.addEventListener("resize", () =>{
+			updateScale();
 			canvas2.width = window.innerWidth;
 			canvas2.height = window.innerHeight;
 
-			hundleParticles();
-			animateBackground();
-
-		// // cleanup for the resize listener we added above
-		// return () => {
-		// 	window.removeEventListener('resize', updateScale);
-		// };
+			// Update limits for existing particles
+			wheelParticles.forEach((particle) => {
+				particle.canvasWidth = canvas2.width;
+				particle.canvasHeight = canvas2.height;
+			});
 	});
 
 		spinBtn.onclick = async () => {
@@ -333,7 +337,7 @@
 					spinning,
 					spinBtn,
 					animationId,
-					sections,
+					sections: sectionsCount,
 					colors,
 					labels,
 					canvasWidth: canvasWidth,
@@ -412,7 +416,7 @@
 	});
 </script>
 
-<main class="m-0 p-5 flex flex-col items-center justify-center min-h-screen">
+<main class="m-0 p-5 flex flex-col items-center justify-center w-full h-screen overflow-hidden">
 	{#if showConfetti}
 		<canvas class="block absolute top-0 left-0 w-full h-full z-40" bind:this={canvas3}></canvas>
 	{/if}
@@ -420,7 +424,7 @@
 	<div class="relative mt-5" id="wheelContainer">
 		<!-- Scaled container (keeps canvas at a fixed base size but scales it to fit available width) -->
 		<div class="w-full flex justify-center overflow-hidden">
-			<div class="transform -scale-80 sm:scale-100 relative">
+			<div class="relative" bind:this={scalingContainer} style="transform: scale({scale}); transform-origin: center;">
 				<div
 					class="absolute -top-5 left-[50%] transform translate-x-[-50%] w-0 h-0"
 					bind:this={selector}
@@ -480,12 +484,12 @@
 					{#if !tryAgain && showCertificateBtn}
 						<button
 							onclick={() => goto('/preview-certificate')}
-							class="py-2 px-10 text-sm sm:text-normal"
+							class="py-2 px-10 text-sm sm:text-normal sm:mt-8"
 							id="spinBtn">Claim certificate for your prize</button
 						>
 					{/if}
 					{#if tryAgain && spinLeftMessage}
-						<p class="py-2 text-xl text-white px-10 mt-8">{spinLeftMessage}</p>
+						<p class="py-2 text-xl text-white px-10 sm:mt-8">{spinLeftMessage}</p>
 					{/if}
 				{/if}
 			</div>

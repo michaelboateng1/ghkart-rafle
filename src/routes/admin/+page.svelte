@@ -36,6 +36,17 @@
 		}
 
 		animate();
+
+		window.addEventListener("resize", () =>{
+			canvas.width = window.innerWidth;
+			canvas.height = window.innerHeight;
+
+			// Update limits for existing particles
+			backgroundParticles.forEach((particle) => {
+				particle.canvasWidth = canvas.width;
+				particle.canvasHeight = canvas.height;
+			});
+		});
 	});
 
     let emailInput;

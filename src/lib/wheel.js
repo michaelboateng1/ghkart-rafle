@@ -135,7 +135,7 @@ export function spin({
 		targetLabel = 'Keyboard';
 	} else {
 		// TODO:Chnage this back to "Try Again";
-		targetLabel = 'Laptop';
+		targetLabel = 'Try Again';
 	}
 
 	console.log('Target label:', targetLabel);

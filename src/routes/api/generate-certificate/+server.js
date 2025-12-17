@@ -41,9 +41,9 @@ export async function POST({request, cookies }) {
         }
 
 
-       const updatedData = db.transaction((tx) => {
+       const updatedData = await db.transaction(async (tx) => {
                 // Fetch customer
-                const [lockedCustomer] = tx.select()
+                const [lockedCustomer] = await tx.select()
                     .from(customers)
                     .where(eq(customers.id, sessionRecord[0].customerId))
                     .limit(1)
@@ -101,7 +101,7 @@ export async function POST({request, cookies }) {
         
                 // Optimistic lock update
                 if(!lockedCustomer.certificateGenerated){
-                    tx.update(customers)
+                    await tx.update(customers)
                         .set({
                             certificateGenerated: true,
                             updatedAt: new Date()

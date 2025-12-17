@@ -3,13 +3,13 @@ import { customers } from "$lib/server/db/schemas/schema.js";
 import { eq, and } from "drizzle-orm";
 
 export function incrementSpin(customerId, maxSpins = 10) {
-    return db.transaction((tx) => {
+    return db.transaction(async (tx) => {
         // Fetch customer
-        const [lockedCustomer] = tx.select()
+        const [lockedCustomer] = await tx.select()
             .from(customers)
             .where(eq(customers.id, customerId))
             .limit(1)
-            .all()
+            .all();
 
         if (!lockedCustomer) {
             return {
@@ -49,7 +49,7 @@ export function incrementSpin(customerId, maxSpins = 10) {
         const remainingSpins = maxSpins - newSpinCount;
 
         // Optimistic lock update
-        tx.update(customers)
+        await tx.update(customers)
             .set({
                 numberOfSpins: newSpinCount,
                 updatedAt: new Date()

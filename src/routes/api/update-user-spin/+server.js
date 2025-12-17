@@ -28,7 +28,7 @@ export async function GET({ cookies }) {
     }
 
     // Call sync transaction safely
-    const result = incrementSpin(sessionRecord.customerId);
+    const result = await incrementSpin(sessionRecord.customerId);
     console.log("increment number of spin", result);
 
 

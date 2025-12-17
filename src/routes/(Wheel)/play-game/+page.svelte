@@ -225,7 +225,7 @@
 			const req = await fetch("/api/update-user-spin", options);
 			const data = await req.json();
 
-			console.log(data);
+			console.log("UPDATED USERDATA: ", data);
 
 			if(req.ok && req.status === 200){
 				return data

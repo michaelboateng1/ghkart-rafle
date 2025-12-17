@@ -105,7 +105,7 @@
                 method: "POST",
             }
 
-            const request = await fetch('/api/download-certificate', options);
+            const request = await fetch('/api/generate-certificate', options);
 			let data = await request.json();
 
 			if (request.ok && request.status === 200) {

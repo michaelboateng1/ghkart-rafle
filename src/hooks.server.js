@@ -86,7 +86,7 @@ async function handleEmailVerificationPath({ event, resolve }) {
 				throw redirect(302, "/prize-info");
 			}
 
-		}else if(url.pathname === "/preview-certificate" || url.pathname === "/api/download-certificate"){
+		}else if(url.pathname === "/preview-certificate" || url.pathname === "/api/generate-certificate"){
 			if(!sessionToken){
 				console.log("MISSING SESSION TOKEN FOR PREVIEW CERTIFICATE PAGE");
 				throw redirect(301, "/");

@@ -12,5 +12,13 @@ export default defineConfig({
 			// environment that SvelteKit uses during build/postbuild.
 			{ find: 'ms', replacement: path.resolve('./src/shims/ms-compat.js') }
 		]
-	}
+	},
+	ssr: {
+    		noExternal: [
+      			'better-auth',
+      			'@better-auth/core',
+      			'@better-auth/telemetry',
+      			'ms'
+    		]
+  	}
 });

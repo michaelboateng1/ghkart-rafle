@@ -94,7 +94,7 @@ export async function POST({request, cookies }) {
                             priceName: lockedCustomer.priceName,
                             message: "Sorry, you can only win once. Redirecting...",
                             certificateGenerated: lockedCustomer.certificateGenerated,
-                            redirectUrl: "https://ghkart",
+                            redirectUrl: "https://ghkart.com",
                         }
                     }
 
@@ -134,7 +134,7 @@ export async function POST({request, cookies }) {
             }
 
     } catch (err) {
-        console.log(err);
+        // console.log(err);
         return new Response(JSON.stringify({ message: "Internal server error" }),
             { status: 500 }
         );

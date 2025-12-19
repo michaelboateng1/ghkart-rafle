@@ -86,13 +86,12 @@
 			const req = await fetch('/api/winner-info');
 			if (!req.ok) return;
 			const data = await req.json();
-			if (data?.found && data.winner) {
-				const w = Array.isArray(data.winner) ? data.winner[0] : data.winner;
-				console.log(w);
-				winner = w;
-				winnerName = w.name;
-				prizeName = w.winPrice && w.priceName !== 'null' ? w.priceName : "prize Name";
-				certificateId = w.id.split("-").slice(0, 2).join("-");
+			if (data?.found) {
+				// console.log("WINNER INFOMATION: ", data);
+				winner = data.winPrice;
+				winnerName = data.name;
+				prizeName = winner && data.prize !== 'null' ? data.prize : "Prize Name";
+				certificateId = data.id.split("-").slice(0, 2).join("-");
 			}
 		} catch (e) {
 			console.warn('getWinnersData error', e);

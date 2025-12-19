@@ -2,7 +2,6 @@ import { db } from '$lib/server/db/index.js';
 import { sessions, customers } from "$lib/server/db/schemas/schema.js";
 import { eq } from 'drizzle-orm';
 
-import {goto} from '$app/navigation';
 
 export async function POST({ request, cookies }) {
     try {
@@ -23,21 +22,10 @@ export async function POST({ request, cookies }) {
             .limit(1);
 
         if (!sessionRecord.length) {
-            if (!customerRecord.length) {
-                return new Response(JSON.stringify({
-                    success: false,
-                    winPrice: customerRecord[0].winPrice,
-                    priceName: customerRecord[0].priceName,
-                    redirectUrl: "/"}), {status: 400});
-            }
+            return new Response(JSON.stringify({
+                success: false,
+                redirectUrl: "/"}), {status: 400});
         }
-
-       await db.update(customers).set({
-            winPrice: true,
-            priceName: price,
-            updatedAt: new Date()
-        }).where(eq(customers.id, sessionRecord[0].customerId ));
-
 
         const customerRecord = await db.select()
             .from(customers)
@@ -47,29 +35,27 @@ export async function POST({ request, cookies }) {
         if (!customerRecord.length) {
             return new Response(JSON.stringify({
                 success: false,
-                winPrice: customerRecord[0].winPrice,
-                priceName: customerRecord[0].priceName,
                 redirectUrl: "/"}), {status: 400});
         }
 
-        cookies.set("ghkart.prizeWinner", JSON.stringify(customerRecord), {
-            path: "/",
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production" || process.env.NODE_ENV === "prod",
-            sameSite: "lax"
-        });
+        await db.update(customers).set({
+            winPrice: true,
+            priceName: price,
+            updatedAt: new Date()
+        }).where(eq(customers.id, customerRecord[0].id ));
 
+        const updatedWinner = await db.select().from(customers).where(eq(customers.id, customerRecord[0].id)).limit(1);
 
 
         return new Response(JSON.stringify({
                 success: true,
-                winPrice: customerRecord[0].winPrice,
-                priceName: customerRecord[0].priceName,
+                winPrice: updatedWinner[0].winPrice,
+                priceName: updatedWinner[0].priceName,
                 message: "",
                 redirectUrl: ""}), {status: 200});
 
     } catch (err) {
-        console.log(err);
+        // console.log(err);
         return new Response(JSON.stringify({ message: "Internal server error" }),
             { status: 500 }
         );

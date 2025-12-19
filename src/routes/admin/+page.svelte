@@ -70,10 +70,10 @@
 
 			const response = await fetch("/api/admin-auth", options);
 			const data = await response.json();
-			console.log(data);
+			// console.log(data);
 			emailInput.value = "";
 		}catch(err){
-			console.log(err);
+			// console.log(err);
 		}finally{
 			isLoading = false;
 		}

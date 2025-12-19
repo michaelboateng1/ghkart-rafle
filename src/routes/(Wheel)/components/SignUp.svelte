@@ -46,7 +46,7 @@
 				phoneNumberInput.value = '';
 				locationInput.value = '';
 			} else {
-				console.log(data.error);
+				// console.log(data.error);
 				errorMessage = data.error || 'Failed to send OTP';
 			}
 		} catch (err) {

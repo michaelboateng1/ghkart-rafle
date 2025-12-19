@@ -1,26 +1,3 @@
-// import { auth } from '$lib/auth';
-
-// export async function POST({ request }) {
-// 	const { firstName, lastName, email, phoneNumber, location } = await request.json();
-// 	const data = await auth.api.sendVerificationOTP({
-// 		body: {
-// 			email: email,
-// 			type: 'email-verification'
-// 		}
-// 	});
-
-// 	if (data) {
-// 		console.log('Data Returned', data);
-// 		return new Response(JSON.stringify(data), {
-// 			status: 200
-// 		});
-// 	}
-
-// 	return new Response(JSON.stringify(email), {
-// 		status: 500
-// 	});
-// }
-
 import { auth } from '$lib/auth';
 import { db } from '$lib/server/db';
 import {customers } from '$lib/server/db/schemas/schema.js';
@@ -32,15 +9,18 @@ export async function POST({ request, cookies }) {
 	try {
 		const { firstName, lastName, email, phoneNumber, location } = await request.json();
 
-		console.log('Processing signup for:', email);
+		// console.log('Processing signup for:', email);
 
 		// Check if customer already exists
-		const existingCustomer = await db.select().from(customers).where(eq(customers.email, email)).limit(1);
+		const existingCustomer = await db.select({ id: customers.id })
+		.from(customers)
+		.where(eq(customers.email, email))
+		.limit(1);
 
 		let customerId;
 
 		if (existingCustomer.length > 0) {
-			console.log('User already exists:', existingCustomer[0].id);
+			// console.log('User already exists:', existingCustomer[0].id);
 			customerId = existingCustomer[0].id;
 		} else {
 			
@@ -49,7 +29,7 @@ export async function POST({ request, cookies }) {
 
 			// Create new customer record
 			await db.insert(customers).values({
-				id: randomUUID(),
+				id: customerId,
 				name: `${firstName} ${lastName}`,
 				email: email,
 				phoneNumber: phoneNumber,
@@ -58,7 +38,7 @@ export async function POST({ request, cookies }) {
 				updatedAt: now
 			});
 
-			console.log('New Customer record created');
+			// console.log('New Customer record created');
 		}
 
 		// Send OTP for verification
@@ -69,7 +49,7 @@ export async function POST({ request, cookies }) {
 			}
 		});
 
-		console.log('OTP sent successfully');
+		// console.log('OTP sent successfully');
 
 		const now = new Date();
         const expiresAt = new Date(now.getTime() + 3 * 60 * 1000);
@@ -82,7 +62,7 @@ export async function POST({ request, cookies }) {
             sameSite: "lax"
         });
 
-        console.log("Session created successfully!", cookies.get("ghkart.user_email"));
+        // console.log("OTP helper cookie set:", cookies.get("ghkart.user_email"));
 
 		return new Response(
 			JSON.stringify({
@@ -115,6 +95,8 @@ export async function POST({ request, cookies }) {
 					}
 				}
 			);
+		}else if(error.message.includes("Failed query:")){
+			
 		}
 
 		return new Response(

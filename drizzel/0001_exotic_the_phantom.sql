@@ -1,0 +1,1 @@
+ALTER TABLE `verification` ADD `customer_id` text NOT NULL REFERENCES customers(id);

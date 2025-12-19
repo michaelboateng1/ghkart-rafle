@@ -44,15 +44,15 @@ export async function sendEmail({ to, subject, text, html }) {
 			console.warn('Failed to attach inline logo:', e && e.message ? e.message : e);
 		}
 
-		console.log(`Sending mail to ${to} with subject "${subject}"`);
+		// console.log(`Sending mail to ${to} with subject "${subject}"`);
 		const info = await transporter.sendMail(mailOptions);
 
 		// If using Ethereal (test account), print preview URL
 		if (nodemailer.getTestMessageUrl && nodemailer.getTestMessageUrl(info)) {
-			console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+			// console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
 		}
 
-		console.log('Message sent: %s', info.messageId || '[no-message-id]');
+		// console.log('Message sent: %s', info.messageId || '[no-message-id]');
 		return info;
 	} catch (err) {
 		console.error('Error sending email:', err && err.stack ? err.stack : err);

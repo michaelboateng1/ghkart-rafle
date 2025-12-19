@@ -22,10 +22,10 @@
 
 			const response = await fetch("/api/sign-in", options);
 			const data = await response.json();
-			console.log(data);
+			// console.log(data);
 			emailInput.value = "";
 		}catch(err){
-			console.log(err);
+			// console.log(err);
 		}finally{
 			isLoading = false;
 		}

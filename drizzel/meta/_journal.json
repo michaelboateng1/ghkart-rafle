@@ -8,6 +8,20 @@
       "when": 1765415859028,
       "tag": "0000_harsh_katie_power",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1766143911634,
+      "tag": "0001_exotic_the_phantom",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1766144282415,
+      "tag": "0002_abnormal_frank_castle",
+      "breakpoints": true
     }
   ]
 }

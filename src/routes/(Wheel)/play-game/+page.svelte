@@ -184,7 +184,7 @@
 	const wonAPrice = async (price) => {
 		try{
 			price = labels.includes(price) ? price : "no price";
-			console.log("storing price: ", price);
+			// console.log("storing price: ", price);
 	
 			const options = {
 				method: "POST",
@@ -197,19 +197,21 @@
 			const req = await fetch("/api/won-a-price", options);
 			const data = await req.json();
 
+			// console.log("DATA RETURN FROM DATABASE: ", data);
+
 
 			if(req.ok && data.success){
 				savedPrice = data.winPrice && data.priceName !== "null" ? true : false;
-				console.log("IS DATA SAVED? ", savedPrice);
+				// console.log("IS DATA SAVED? ", savedPrice);
 			}
 
 			if(!savedPrice && data.redirectUrl){
-				console.log("REDIRECT MESSAGE: ");
-				setTimeout(() => goto(data.redirectUrl), 1500);
+				// console.log("REDIRECT MESSAGE: ");
+				// setTimeout(() => goto(data.redirectUrl), 1500);
 			}
 
 		}catch(err){
-			console.log("ERROR RETURN FROM DATABASE OPERATIONS: ", err)
+			// console.log("ERROR RETURN FROM DATABASE OPERATIONS: ", err)
 		}
 
 	}
@@ -225,13 +227,13 @@
 			const req = await fetch("/api/update-user-spin", options);
 			const data = await req.json();
 
-			console.log("UPDATED USERDATA: ", data);
+			// console.log("UPDATED USERDATA: ", data);
 
 			if(req.ok && req.status === 200){
 				return data
 			}else{
-				console.log("DONE WITH DATABASE OPERATIONS: ", data);
-				console.log("Request: ", req);
+				// console.log("DONE WITH DATABASE OPERATIONS: ", data);
+				// console.log("Request: ", req);
 				redirectMessage = data.message
 				
 				if (data && data.redirectUrl) {
@@ -243,7 +245,7 @@
 
 		}
 		catch(err){
-			console.log(err)
+			// console.log(err)
 		}
 	}
 
@@ -301,7 +303,7 @@
 
 
 
-		console.log(ctx);
+		// console.log(ctx);
 
 		// Start Drawing
 		drawWheel(canvasWidth, canvasHeight, ctx, sectionsCount, rotation, colors, labels);
@@ -322,15 +324,7 @@
 		spinBtn.onclick = async () => {
 		// Play button click sound
 		playButtonClickAudio();
-		
-		const data = await updateUser();
-
-		if (!data) return;
-
-		remainingSpins = data.remainingSpins;
-		spinLeftMessage = data.message || data.error;
-
-		console.log("Updated Customer  numberOfSpins: ", data);
+		spinLeftMessage = "Waiting for result...";
 
 			spin({
 					rotation,
@@ -344,11 +338,11 @@
 					canvasHeight: canvasHeight,
 					ctx,
 					selector,
-					onUpdate: (updates) => {
+					onUpdate: async (updates) => {
 						if ('selectedSection' in updates) {
-							console.log("Selected product: ", updates.selectedSection);
+							// console.log("Selected product: ", updates.selectedSection);
 							selectedImage = productImages[updates.selectedSection];
-							console.log("😱🥳🎊🎉: ", savedPrice);
+							// console.log("😱🥳🎊🎉: ", savedPrice);
 
 							if(labels[updates.selectedSection] === "Try Again"){
 								tryAgain = true;
@@ -363,11 +357,11 @@
 							// Play audio according to outcome — only play win audio when confetti is shown
 							if (labels[updates.selectedSection] === 'Try Again') {
 								// Play lose audio briefly so it doesn't annoy
-								playLoseAudio?.(1200);
+								playLoseAudio?.(5000);
 							} else {
 								if (showConfetti) {
 									// play celebratory sound when confetti is being shown
-									playWinAudio?.();
+									playWinAudio?.(5000);
 								}
 							}
 
@@ -378,10 +372,10 @@
 							// already been saved.
 							if (labels[updates.selectedSection] !== "Try Again" && !savedPrice) {
 								wonAPrice(labels[updates.selectedSection]);
-								console.log("User won and redirecting 7");
+								// console.log("User won and redirecting 7");
 							}
 
-							console.log("😱🥳🎊🎉: ", savedPrice);
+							// console.log("😱🥳🎊🎉: ", savedPrice);
 						}
 	
 	
@@ -411,6 +405,17 @@
 					}
 				});
 
+			const data = await updateUser();
+
+			// console.log("RECIEVED DATA: ", data);
+
+			if (!data) return;
+
+			remainingSpins = data.remainingSpins;
+			spinLeftMessage = data.message || data.error;
+
+			// console.log("Updated Customer  numberOfSpins: ", data);
+
 			return;
 		};
 	});
@@ -424,7 +429,11 @@
 	<div class="relative mt-5" id="wheelContainer">
 		<!-- Scaled container (keeps canvas at a fixed base size but scales it to fit available width) -->
 		<div class="w-full flex justify-center overflow-hidden">
-			<div class="relative" bind:this={scalingContainer} style="transform: scale({scale}); transform-origin: center;">
+			<div
+				class="relative"
+				bind:this={scalingContainer}
+				style="transform: scale({scale}); transform-origin: center;"
+			>
 				<div
 					class="absolute -top-5 left-[50%] transform translate-x-[-50%] w-0 h-0"
 					bind:this={selector}

@@ -86,19 +86,7 @@
 
 			const data = await response.json();
 
-			console.log("FINISHED DATABASE OPERATIONS: ", data);
-			console.log(response);
-
-			// Check if user has exceeded spins
-			// if (data.spinsExceeded && data.redirectUrl) {
-			// 		successMessage = data.message || 'You have used all your spins. Redirecting...';
-			// 		// Redirect to external URL after short delay
-			// 		setTimeout(() => {
-			// 			window.location.href = data.redirectUrl;
-			// 		}, 1500);
-			// 	} else {
-					
-			// 	}
+			// console.log("FINISHED OTP DATABASE OPERATIONS: ", data);
 
 			if (response.ok && response.status === 200) {
 				successMessage = 'Email verified successfully!';
@@ -114,7 +102,7 @@
 				otpDigits = ['', '', '', ''];
 				otpInputs[0].focus();
 
-				if(data.redirectUrl && data?.spinsExceeded) setTimeout(() => window.location = data.redirectUrl, 1500);
+				if(data.redirectUrl && data.redirectUrl.includes("https://ghkart.com")) setTimeout(() => window.location = data.redirectUrl, 1500);
 				if(data.redirectUrl) setTimeout(() => goto(data.redirectUrl), 1500);
 			}
 		} catch (err) {

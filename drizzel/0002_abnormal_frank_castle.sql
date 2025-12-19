@@ -1,0 +1,1 @@
+ALTER TABLE `verification` DROP COLUMN `customer_id`;

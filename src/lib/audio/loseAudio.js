@@ -1,4 +1,4 @@
-import loseSound from "$lib/assets/audio/losegamemusic.ogg";
+import loseSound from "$lib/assets/audio/letstryagain.wav.ogg";
 
 let audioContext = null;
 let audioBuffer = null;

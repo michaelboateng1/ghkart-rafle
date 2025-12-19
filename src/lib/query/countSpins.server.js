@@ -40,7 +40,7 @@ export function incrementSpin(customerId, maxSpins = 10) {
                 priceName: lockedCustomer.priceName,
                 message: "You've used all your spins. Redirecting...",
                 remainingSpins: 0,
-                redirectUrl: "https://ghkart",
+                redirectUrl: "https://ghkart.com",
                 status: 301
             }
         }

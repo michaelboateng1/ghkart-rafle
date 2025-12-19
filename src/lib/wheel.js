@@ -123,7 +123,7 @@ export function spin({
 	const prizeChance = Math.random();
 	let targetLabel;
 
-	console.log('Prize chance:', prizeChance);
+	// console.log('Prize chance:', prizeChance);
 
 	if (prizeChance < 0.02) {
 		targetLabel = 'Laptop';
@@ -138,7 +138,7 @@ export function spin({
 		targetLabel = 'Try Again';
 	}
 
-	console.log('Target label:', targetLabel);
+	// console.log('Target label:', targetLabel);
 
 	// Find ALL sections with that label
 	const matchingIndices = [];
@@ -148,11 +148,11 @@ export function spin({
 		}
 	});
 
-	console.log('Matching indices:', matchingIndices);
+	// console.log('Matching indices:', matchingIndices);
 
 	// Pick a random section from the matching ones
 	const targetIndex = matchingIndices[Math.floor(Math.random() * matchingIndices.length)];
-	console.log('Selected target index:', targetIndex);
+	// console.log('Selected target index:', targetIndex);
 
 	const anglePerSection = (2 * Math.PI) / sections;
 

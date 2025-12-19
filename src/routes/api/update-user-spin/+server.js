@@ -11,7 +11,7 @@ export async function GET({ cookies }) {
                 success: false,
                 message: "Missing session token. Redirecting...",
                 redirectUrl: "/",
-            }), { status: 400 });
+            }), { status: 302 });
     }
 
     const [sessionRecord] = await db.select()
@@ -20,16 +20,28 @@ export async function GET({ cookies }) {
         .limit(1);
 
     if (!sessionRecord) {
+        cookies.delete("better-auth.session_token", { path: "/" });
         return new Response(JSON.stringify({
                 success: false,
                 message: "Missing session. Redirecting...",
                 redirectUrl: "/",
-            }), { status: 400 });
+            }), { status: 302 });
     }
+
+
+    // Check expiry
+    // if (sessionRecord.expiresAt < Date.now()) {
+    //     cookies.delete("better-auth.session_token");
+    //     return new Response(JSON.stringify({
+    //         success: false,
+    //         message: "Session has expired. Redirecting...",
+    //         redirectUrl: "/",
+    //     }), { status: 400 });
+    // }
 
     // Call sync transaction safely
     const result = await incrementSpin(sessionRecord.customerId);
-    console.log("increment number of spin", result);
+    // console.log("increment number of spin", result);
 
 
     if (result.message) {

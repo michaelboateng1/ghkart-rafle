@@ -109,14 +109,14 @@ export const actions = {
 
     deleteUser: async ({ request, cookies }) => {
         const data = await request.formData();
-        console.log("DELETEING USER...", data);
+        // console.log("DELETEING USER...", data);
         const id = data.get('id');
         if (!id) return fail(400, { error: 'Missing id' });
 
         try {
             await db.delete(customers).where(eq(customers.id, id));
             await db.delete(sessions).where(eq(sessions.customerId, id));
-            cookies.delete("better-auth.session_token");
+            cookies.delete("better-auth.session_token", { path: "/" });
             return { success: true };
         } catch (err) {
             console.error('deleteUser error', err);
